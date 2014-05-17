@@ -14,7 +14,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
         $data = ['postid' => 5];
         $this->transformer->define('id', 'postid');
 
-        $data = $this->transformer->toApp($data);
+        $data = $this->transformer->forApp($data);
         $this->assertSame(['id' => 5], $data);
     }
 
@@ -23,7 +23,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
         $data = ['id' => 5];
         $this->transformer->define('id', 'postid');
 
-        $data = $this->transformer->toStorage($data);
+        $data = $this->transformer->forStorage($data);
         $this->assertSame(['postid' => 5], $data);
     }
 
@@ -32,7 +32,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
         $data = ['postid' => '5'];
         $this->transformer->define('id', 'postid', 'intval');
 
-        $data = $this->transformer->toApp($data);
+        $data = $this->transformer->forApp($data);
         $this->assertSame(['id' => 5], $data);
     }
 
@@ -41,7 +41,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
         $data = ['id' => 5];
         $this->transformer->define('id', 'postid', null, 'strval');
 
-        $data = $this->transformer->toStorage($data);
+        $data = $this->transformer->forStorage($data);
         $this->assertSame(['postid' => '5'], $data);
     }
 

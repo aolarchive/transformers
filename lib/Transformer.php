@@ -4,65 +4,53 @@ namespace Amp;
 
 class Transformer
 {
-    /** @var array Transformation definitions */
-    private $definitions = [];
+	/** @var \Amp\Transformer\Definition[] Transformation definitions */
+	private $definitions = [];
 
-    private $index_app_names = [];
-    private $index_storage_names = [];
+	private $indexs = [];
 
-    public function define($app_name, $storage_name, callable $app_func = null, callable $storage_func = null)
-    {
-        $arr = [
-            'app_name'     => $app_name,
-            'storage_name' => $storage_name,
-            'app_func'     => $app_func,
-            'storage_func' => $storage_func
-        ];
-        $index = array_push($this->definitions, $arr) - 1;
+	public function define($app_name, $storage_name, callable $app_func = null, callable $storage_func = null)
+	{
+		$arr   = [
+			'app_name'     => $app_name,
+			'storage_name' => $storage_name,
+			'app_func'     => $app_func,
+			'storage_func' => $storage_func
+		];
+		$index = array_push($this->definitions, $arr) - 1;
 
-        $this->index_app_names[$app_name] = $index;
-        $this->index_storage_names[$storage_name] = $index;
-    }
+		$this->indexs['storage'][$app_name] = $index;
+		$this->indexs['app'][$storage_name] = $index;
+	}
 
-    public function toStorage($data)
-    {
-        $ret = [];
-        foreach ($data as $key => $value) {
-            if (!isset($this->index_app_names[$key])) {
-                continue;
-            }
+	public function forStorage($data)
+	{
+		return $this->forEnv('storage', $data);
+	}
 
-            $index = $this->index_app_names[$key];
-            $definition = $this->definitions[$index];
+	public function forApp($data)
+	{
+		return $this->forEnv('app', $data);
+	}
 
-            if(!is_null($definition['storage_func'])) {
-                $value = call_user_func($definition['storage_func'], $value);
-            }
+	private function forEnv($env, $data)
+	{
+		$ret = [];
+		foreach ($data as $key => $value) {
+			if (!isset($this->indexs[$env][$key])) {
+				continue;
+			}
 
-            $ret[$definition['storage_name']] = $value;
-        }
+			$index      = $this->indexs[$env][$key];
+			$definition = $this->definitions[$index];
 
-        return $ret;
-    }
+			if (!is_null($definition[$env . '_func'])) {
+				$value = call_user_func($definition[$env . '_func'], $value);
+			}
 
-    public function toApp($data)
-    {
-        $ret = [];
-        foreach ($data as $key => $value) {
-            if (!isset($this->index_storage_names[$key])) {
-                continue;
-            }
+			$ret[$definition[$env . '_name']] = $value;
+		}
 
-            $index = $this->index_storage_names[$key];
-            $definition = $this->definitions[$index];
-
-            if(!is_null($definition['app_func'])) {
-                $value = call_user_func($definition['app_func'], $value);
-            }
-
-            $ret[$definition['app_name']] = $value;
-        }
-
-        return $ret;
-    }
+		return $ret;
+	}
 }
