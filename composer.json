@@ -1,0 +1,14 @@
+{
+    "name": "amp/transformer",
+    "require-dev": {
+        "phpunit/phpunit": "~4.1"
+    },
+    "require": {
+
+    },
+    "autoload": {
+        "psr-4": {
+            "Amp\\": "lib/"
+        }
+    }
+}
