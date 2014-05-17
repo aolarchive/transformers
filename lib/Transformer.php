@@ -2,8 +2,13 @@
 
 namespace Amp;
 
+use Amp\Transformer\Definition;
+
 class Transformer
 {
+	const ENV_STORAGE = 'storage';
+	const ENV_APP = 'app';
+
 	/** @var \Amp\Transformer\Definition[] Transformation definitions */
 	private $definitions = [];
 
@@ -11,26 +16,21 @@ class Transformer
 
 	public function define($app_name, $storage_name, callable $app_func = null, callable $storage_func = null)
 	{
-		$arr   = [
-			'app_name'     => $app_name,
-			'storage_name' => $storage_name,
-			'app_func'     => $app_func,
-			'storage_func' => $storage_func
-		];
-		$index = array_push($this->definitions, $arr) - 1;
+		$definition = new Definition($app_name, $storage_name, $app_func, $storage_func);
+		$index      = array_push($this->definitions, $definition) - 1;
 
-		$this->indexs['storage'][$app_name] = $index;
-		$this->indexs['app'][$storage_name] = $index;
+		$this->indexs[self::ENV_STORAGE][$app_name] = $index;
+		$this->indexs[self::ENV_APP][$storage_name] = $index;
 	}
 
 	public function forStorage($data)
 	{
-		return $this->forEnv('storage', $data);
+		return $this->forEnv(self::ENV_STORAGE, $data);
 	}
 
 	public function forApp($data)
 	{
-		return $this->forEnv('app', $data);
+		return $this->forEnv(self::ENV_APP, $data);
 	}
 
 	private function forEnv($env, $data)
@@ -44,11 +44,7 @@ class Transformer
 			$index      = $this->indexs[$env][$key];
 			$definition = $this->definitions[$index];
 
-			if (!is_null($definition[$env . '_func'])) {
-				$value = call_user_func($definition[$env . '_func'], $value);
-			}
-
-			$ret[$definition[$env . '_name']] = $value;
+			$ret[$definition->getKey($env)] = $definition->parseValue($env, $value);
 		}
 
 		return $ret;
