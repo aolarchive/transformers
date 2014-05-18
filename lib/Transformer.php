@@ -6,8 +6,8 @@ use Amp\Transformer\Definition;
 
 class Transformer
 {
-	const ENV_STORAGE = 'storage';
 	const ENV_APP = 'app';
+	const ENV_STORAGE = 'storage';
 
 	/** @var \Amp\Transformer\Definition[] Transformation definitions */
 	private $definitions = [];
