@@ -104,3 +104,27 @@ The last thing we should address is that status field. Its fairly common to stor
     ];
 
     $transform->defineBitmask('status', 'status', $status_mask);
+
+
+## Putting it all together
+One you have all of the definitions you can package it up into a single reusable component.
+
+    <?php
+
+    class PostTransformer
+    {
+        public function __construct()
+        {
+            $this->define('id', 'id');
+            $this->define('user_id', 'UserID');
+            $this->define('title', 'Title');
+            $this->defineDate('created', 'entryDate');
+            $this->defineJson('tags', 'tags');
+            $this->defineBitmask('status', 'status', $this->status_mask);
+        }
+
+        private $status_mask = [
+            1 => 'draft',
+            2 => 'published'
+        ];
+    }
