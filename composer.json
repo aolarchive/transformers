@@ -1,5 +1,5 @@
 {
-    "name": "amp/transformer",
+    "name": "amp/transformers",
     "require-dev": {
         "phpunit/phpunit": "~4.1"
     },
