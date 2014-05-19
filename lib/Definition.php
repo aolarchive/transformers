@@ -1,8 +1,6 @@
 <?php
 
-namespace Amp\Transformer;
-
-use Amp\Transformer;
+namespace Amp\Transformers;
 
 class Definition
 {

@@ -1,15 +1,13 @@
 <?php
 
-namespace Amp;
-
-use Amp\Transformer\Definition;
+namespace Amp\Transformers;
 
 class Transformer
 {
 	const ENV_APP = 'app';
 	const ENV_STORAGE = 'storage';
 
-	/** @var \Amp\Transformer\Definition[] Transformation definitions */
+	/** @var Definition[] Transformation definitions */
 	private $definitions = [];
 
 	private $indexs = [];

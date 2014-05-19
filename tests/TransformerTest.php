@@ -1,8 +1,8 @@
 <?php
 
-namespace Amp\Test;
+namespace Amp\Transformers\Tests;
 
-use Amp\Transformer;
+use Amp\Transformers\Transformer;
 
 class TransformerTest extends \PHPUnit_Framework_TestCase
 {
