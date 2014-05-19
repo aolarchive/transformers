@@ -11,37 +11,33 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 
     public function testTransformNameToApp()
     {
-        $data = ['postid' => 5];
-        $this->transformer->define('id', 'postid');
+	    $this->transformer->define('id', 'postid');
+        $data = $this->transformer->forApp(['postid' => 5]);
 
-        $data = $this->transformer->forApp($data);
         $this->assertSame(['id' => 5], $data);
     }
 
     public function testTransformNameToStorage()
     {
-        $data = ['id' => 5];
-        $this->transformer->define('id', 'postid');
+	    $this->transformer->define('id', 'postid');
+        $data = $this->transformer->forStorage(['id' => 5]);
 
-        $data = $this->transformer->forStorage($data);
         $this->assertSame(['postid' => 5], $data);
     }
 
     public function testTransformValueToApp()
     {
-        $data = ['postid' => '5'];
-        $this->transformer->define('id', 'postid', 'intval');
+	    $this->transformer->define('id', 'postid', 'intval');
+        $data = $this->transformer->forApp(['postid' => '5']);
 
-        $data = $this->transformer->forApp($data);
         $this->assertSame(['id' => 5], $data);
     }
 
     public function testTransformValueToStorage()
     {
-        $data = ['id' => 5];
-        $this->transformer->define('id', 'postid', null, 'strval');
+	    $this->transformer->define('id', 'postid', null, 'strval');
+        $data = $this->transformer->forStorage(['id' => 5]);
 
-        $data = $this->transformer->forStorage($data);
         $this->assertSame(['postid' => '5'], $data);
     }
 

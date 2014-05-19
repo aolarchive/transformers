@@ -10,20 +10,25 @@ class Transformer
 	/** @var Definition[] Transformation definitions */
 	private $definitions = [];
 
-	private $indexs = [];
+	private $indexes = [];
 
 	public function define($app_name, $storage_name, $app_func = null, $storage_func = null)
 	{
 		$definition = new Definition($app_name, $storage_name, $app_func, $storage_func);
 		$index      = array_push($this->definitions, $definition) - 1;
 
-		$this->indexs[self::ENV_STORAGE][$app_name] = $index;
-		$this->indexs[self::ENV_APP][$storage_name] = $index;
+		$this->indexes[self::ENV_STORAGE][$app_name] = $index;
+		$this->indexes[self::ENV_APP][$storage_name] = $index;
 	}
 
 	public function defineDate($app_name, $storage_name)
 	{
 		$this->define($app_name, $storage_name, 'date_create', 'convertDateToMysql');
+	}
+
+	public function defineJson($app_name, $storage_name)
+	{
+		$this->define($app_name, $storage_name, 'json_decode', 'json_encode');
 	}
 
 	public function defineMask($app_name, $storage_name, $mask)
@@ -45,11 +50,11 @@ class Transformer
 	{
 		$ret = [];
 		foreach ($data as $key => $value) {
-			if (!isset($this->indexs[$env][$key])) {
+			if (!isset($this->indexes[$env][$key])) {
 				continue;
 			}
 
-			$index      = $this->indexs[$env][$key];
+			$index      = $this->indexes[$env][$key];
 			$definition = $this->definitions[$index];
 
 			$func_array = $definition->getFunc($env);
