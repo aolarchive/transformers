@@ -21,6 +21,16 @@ class Transformer
 		$this->indexs[self::ENV_APP][$storage_name] = $index;
 	}
 
+	public function defineDate($app_name, $storage_name)
+	{
+		$this->define($app_name, $storage_name, 'date_create', 'convertDateToMysql');
+	}
+
+	public function defineMask($app_name, $storage_name, $mask)
+	{
+		$this->define($app_name, $storage_name, ['bitmask', $mask], ['bitmask', $mask, true]);
+	}
+
 	public function forStorage($data)
 	{
 		return $this->forEnv(self::ENV_STORAGE, $data);
