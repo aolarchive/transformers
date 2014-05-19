@@ -12,7 +12,7 @@ class Transformer
 
 	private $indexs = [];
 
-	public function define($app_name, $storage_name, callable $app_func = null, callable $storage_func = null)
+	public function define($app_name, $storage_name, $app_func = null, $storage_func = null)
 	{
 		$definition = new Definition($app_name, $storage_name, $app_func, $storage_func);
 		$index      = array_push($this->definitions, $definition) - 1;
@@ -42,9 +42,54 @@ class Transformer
 			$index      = $this->indexs[$env][$key];
 			$definition = $this->definitions[$index];
 
-			$ret[$definition->getKey($env)] = $definition->parseValue($env, $value);
+			$func_array = $definition->getFunc($env);
+			$callable   = array_shift($func_array);
+
+			if (method_exists($this, $callable)) {
+				$callable = [$this, $callable];
+			} elseif (is_object($callable) || class_exists($callable)) {
+				$callable = [$callable, array_shift($func_array)];
+			}
+
+			if (is_callable($callable)) {
+				array_unshift($func_array, $value);
+				$value = call_user_func_array($callable, $func_array);
+			}
+
+			$ret[$definition->getKey($env)] = $value;
 		}
 
 		return $ret;
+	}
+
+
+	/* Utility transformation methods ****************************************/
+
+	/**
+	 * Converts a date to MySQL format.
+	 *
+	 * @param string|\DateTime $date The date to convert.
+	 * @param bool             $time
+	 * @return string|null The converted MySQL formatted date string or null.
+	 */
+	public static function convertDateToMySql($date, $time = true)
+	{
+		if (empty($date)) {
+			return null;
+		}
+
+		if (is_string($date)) {
+			$date = new \DateTime($date);
+		}
+
+		if (!$date instanceof \DateTime) {
+			throw new \InvalidArgumentException;
+		}
+
+		$format = $time
+			? 'Y-m-d H:i:s'
+			: 'Y-m-d';
+
+		return $date->format($format);
 	}
 }

@@ -45,6 +45,15 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(['postid' => '5'], $data);
     }
 
+	public function testConvertDateTimeToMysql()
+	{
+		$data = ['date' => date_create('2014-01-01')];
+		$this->transformer->define('date', 'date', null, 'convertDateToMySql');
+
+		$data = $this->transformer->forStorage($data);
+		$this->assertSame(['date' =>'2014-01-01 00:00:00'], $data);
+	}
+
     protected function setUp()
     {
         $this->transformer = new Transformer();
