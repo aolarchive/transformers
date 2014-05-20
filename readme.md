@@ -115,8 +115,8 @@ One you have all of the definitions you can package it up into a single reusable
     {
         public function __construct()
         {
-            $this->define('id', 'id');
-            $this->define('user_id', 'UserID');
+            $this->define('id', 'id', 'intval');
+            $this->define('user_id', 'UserID', 'intval');
             $this->define('title', 'Title');
             $this->defineDate('created', 'entryDate');
             $this->defineJson('tags', 'tags');
