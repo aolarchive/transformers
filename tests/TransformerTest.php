@@ -42,7 +42,6 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
     }
 
 
-
 	/* Utility transformation methods ****************************************/
 
 	public function testBitmask()
