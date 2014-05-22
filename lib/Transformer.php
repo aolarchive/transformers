@@ -132,6 +132,10 @@ class Transformer
 	 */
 	public function forEnv($env, $data)
 	{
+		if (!in_array($env, [self::ENV_APP, self::ENV_STORAGE])) {
+			throw new \InvalidArgumentException('Unknown environment: ' . $env);
+		}
+
 		$ret = [];
 		foreach ($data as $key => $value) {
 			if ($def = $this->getDefinition($env, $key)) {
@@ -139,14 +143,17 @@ class Transformer
 			}
 		}
 
+		$after = 'after' . ucfirst($env);
+		$ret   = $this->$after($ret);
+
 		return $ret;
 	}
 
 	/**
 	 * Transforms data by key for app.
 	 *
-	 * @param array  $key   Data for transformation.
-	 * @param mixed  $value Value for transformation
+	 * @param array $key   Data for transformation.
+	 * @param mixed $value Value for transformation
 	 * @return mixed
 	 */
 	public function forAppKey($key, $value)
@@ -157,8 +164,8 @@ class Transformer
 	/**
 	 * Transforms data by key for storage.
 	 *
-	 * @param array  $key   Data for transformation.
-	 * @param mixed  $value Value for transformation
+	 * @param array $key   Data for transformation.
+	 * @param mixed $value Value for transformation
 	 * @return mixed
 	 */
 	public function forStorageKey($key, $value)
@@ -189,6 +196,16 @@ class Transformer
 	protected function definitions()
 	{
 
+	}
+
+	protected function afterApp($data)
+	{
+		return $data;
+	}
+
+	protected function afterStorage($data)
+	{
+		return $data;
 	}
 
 	/**

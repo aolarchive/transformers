@@ -54,7 +54,6 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame(['postid' => '5'], $data);
 	}
 
-
 	/* Utility transformation methods ****************************************/
 
 	public function testBitmask()
