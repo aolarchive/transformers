@@ -7,26 +7,53 @@ class Transformer
 	const ENV_APP = 'app';
 	const ENV_STORAGE = 'storage';
 
+	const DEFINITION_KEY = 'key';
+	const DEFINITION_FUNC = 'func';
+	const DEFINITION_ARGS = 'args';
+
 	/** @var array Transformation definitions */
 	private $definitions = [];
+
+	/** @var Utility Utility object. */
+	private $utility;
+
+	/**
+	 * @param Utility $utility Utility object.
+	 */
+	public function __construct(Utility $utility)
+	{
+		$this->utility = $utility;
+
+		$this->definitions();
+	}
 
 	/**
 	 * Saves field definitions.
 	 *
-	 * @param string $app_name     Property name in application context.
-	 * @param string $storage_name Property name storage context.
-	 * @param null   $app_func     Callable for transforming property to app context
-	 * @param null   $storage_func Callable for transforming property to storage context.
+	 * @param string   $app_name     Property name in application context.
+	 * @param string   $storage_name Property name storage context.
+	 * @param callable $app_func     Callable for transforming property to app context.
+	 * @param callable $storage_func Callable for transforming property to storage context.
+	 * @param array    $app_args     Arguments for app callback.
+	 * @param array    $storage_args Arguments for storage callback.
 	 */
-	public function define($app_name, $storage_name, $app_func = null, $storage_func = null)
-	{
+	public function define(
+		$app_name,
+		$storage_name,
+		callable $app_func = null,
+		callable $storage_func = null,
+		$app_args = [],
+		$storage_args = []
+	) {
 		$this->definitions[self::ENV_STORAGE][$app_name] = [
-			'key'      => $storage_name,
-			'callback' => $this->saveCallback($storage_func)
+			self::DEFINITION_KEY  => $storage_name,
+			self::DEFINITION_FUNC => $storage_func,
+			self::DEFINITION_ARGS => $storage_args
 		];
 		$this->definitions[self::ENV_APP][$storage_name] = [
-			'key'      => $app_name,
-			'callback' => $this->saveCallback($app_func)
+			self::DEFINITION_KEY  => $app_name,
+			self::DEFINITION_FUNC => $app_func,
+			self::DEFINITION_ARGS => $app_args,
 		];
 	}
 
@@ -41,7 +68,7 @@ class Transformer
 	 */
 	public function defineDate($app_name, $storage_name)
 	{
-		$this->define($app_name, $storage_name, 'date_create', 'convertDateToMysql');
+		$this->define($app_name, $storage_name, 'date_create', [$this->utility, 'convertDateToMysql']);
 	}
 
 	/**
@@ -52,7 +79,7 @@ class Transformer
 	 */
 	public function defineJson($app_name, $storage_name)
 	{
-		$this->define($app_name, $storage_name, 'json_decode', 'json_encode');
+		$this->define($app_name, $storage_name, 'json_decode', 'json_encode', [true]);
 	}
 
 	/**
@@ -62,18 +89,16 @@ class Transformer
 	 */
 	public function defineMask($app_name, $storage_name, $mask)
 	{
-		$this->define($app_name, $storage_name, ['bitmask', $mask], ['bitmask', $mask, true]);
-	}
+		$mask_flip = array_flip($mask);
 
-	/**
-	 * Transforms data for storage.
-	 *
-	 * @param array $data Data for transformation.
-	 * @return array
-	 */
-	public function forStorage($data)
-	{
-		return $this->forEnv(self::ENV_STORAGE, $data);
+		$this->define(
+			$app_name,
+			$storage_name,
+			[$this->utility, 'bitmask'],
+			[$this->utility, 'bitmask'],
+			[$mask],
+			[$mask_flip]
+		);
 	}
 
 	/**
@@ -88,6 +113,17 @@ class Transformer
 	}
 
 	/**
+	 * Transforms data for storage.
+	 *
+	 * @param array $data Data for transformation.
+	 * @return array
+	 */
+	public function forStorage($data)
+	{
+		return $this->forEnv(self::ENV_STORAGE, $data);
+	}
+
+	/**
 	 * Transforms data for a specific environment.
 	 *
 	 * @param string $env  Environment name.
@@ -98,8 +134,8 @@ class Transformer
 	{
 		$ret = [];
 		foreach ($data as $key => $value) {
-			if ($definition = $this->getDefinition($env, $key)) {
-				$ret[$definition['key']] = $this->runCallback($definition['callback'], $value);
+			if ($def = $this->getDefinition($env, $key)) {
+				$ret[$def[self::DEFINITION_KEY]] = $this->parseDefinitionValue($def, $value);
 			}
 		}
 
@@ -107,11 +143,19 @@ class Transformer
 	}
 
 	/**
+	 * A no-op. Can be used in subclass to setup definitions.
+	 */
+	protected function definitions()
+	{
+
+	}
+
+	/**
 	 * Gets a property definition by key for a specific environment.
 	 *
 	 * @param string $env Environment name.
 	 * @param string $key Key name.
-	 * @return null
+	 * @return array|null
 	 */
 	private function getDefinition($env, $key)
 	{
@@ -121,111 +165,19 @@ class Transformer
 	}
 
 	/**
-	 * Saves a transformation data callback.
+	 * Parses a value based on a definition.
 	 *
-	 * @param array $func_array
-	 * @return array|null
+	 * @param array $definition Definition array.
+	 * @param mixed $value      Value.
+	 * @return mixed
 	 */
-	private function saveCallback($func_array)
+	private function parseDefinitionValue($definition, $value)
 	{
-		if ($func_array !== null) {
-			if (is_string($func_array)) {
-				$func_array = [$func_array];
-			}
-
-			$callable = array_shift($func_array);
-
-			// Class methods take first priority
-			if (method_exists($this, $callable)) {
-				$callable = [$this, $callable];
-			} // Next parse out a real callable
-			elseif (is_object($callable) || class_exists($callable)) {
-				$callable = [$callable, array_shift($func_array)];
-			}
-
-			// If we don't have a callable now there's a problem.
-			if (!is_callable($callable)) {
-				throw new \InvalidArgumentException;
-			}
-
-			$func_array = ['callable' => $callable, 'args' => $func_array];
-		}
-
-		return $func_array;
-	}
-
-	/**
-	 * Processes transformation using a saved callback.
-	 *
-	 * @param array $func_array 
-	 * @param mixed $value
-	 * @return array|null
-	 */
-	private function runCallback($func_array, $value)
-	{
-		if ($func_array !== null) {
-			array_unshift($func_array['args'], $value);
-			$value = call_user_func_array($func_array['callable'], $func_array['args']);
+		if (is_callable($definition[self::DEFINITION_FUNC])) {
+			array_unshift($definition[self::DEFINITION_ARGS], $value);
+			$value = call_user_func_array($definition[self::DEFINITION_FUNC], $definition[self::DEFINITION_ARGS]);
 		}
 
 		return $value;
-	}
-
-	/* Utility transformation methods ****************************************/
-
-	/**
-	 * Maps string values to int values.
-	 *
-	 * @param string $value
-	 * @param array  $mask
-	 * @param bool   $flip
-	 * @return string|null
-	 */
-	public function bitmask($value, $mask, $flip = false)
-	{
-		if ($flip) {
-			$mask = array_flip($mask);
-		}
-
-		return isset($mask[$value]) ? $mask[$value] : null;
-	}
-
-	/**
-	 * Converts a mixed value to a boolean value.
-	 *
-	 * @param mixed $value
-	 * @return bool
-	 */
-	public function boolval($value)
-	{
-		return !!$value;
-	}
-
-	/**
-	 * Converts a date to MySQL format.
-	 *
-	 * @param string|\DateTime $date The date to convert.
-	 * @param bool             $time
-	 * @return string|null The converted MySQL formatted date string or null.
-	 */
-	public function convertDateToMySql($date, $time = true)
-	{
-		if (empty($date)) {
-			return null;
-		}
-
-		if (is_string($date)) {
-			$date = new \DateTime($date);
-		}
-
-		if (!$date instanceof \DateTime) {
-			throw new \InvalidArgumentException;
-		}
-
-		$format = $time
-			? 'Y-m-d H:i:s'
-			: 'Y-m-d';
-
-		return $date->format($format);
 	}
 }
