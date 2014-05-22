@@ -26,6 +26,18 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame(['postid' => 5], $data);
 	}
 
+	public function testTransformAppKey()
+	{
+		$this->transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
+		$this->transformer->forAppKey('status', 'published');
+	}
+
+	public function testTransformStorageKey()
+	{
+		$this->transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
+		$this->transformer->forStorageKey('status', 2);
+	}
+
 	public function testTransformValueToApp()
 	{
 		$this->transformer->define('id', 'postid', 'intval');
@@ -70,7 +82,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$this->transformer->defineJson('metadata', 'metadata');
 
 		$array = ['metadata' => ['foo' => 'bar']];
-		$json = ['metadata' => '{"foo":"bar"}'];
+		$json  = ['metadata' => '{"foo":"bar"}'];
 
 		$data = $this->transformer->forStorage($array);
 		$this->assertSame($json, $data);

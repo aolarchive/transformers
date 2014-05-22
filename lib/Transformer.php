@@ -142,6 +142,25 @@ class Transformer
 		return $ret;
 	}
 
+	public function forAppKey($key, $value)
+	{
+		return $this->forEnvKey(self::ENV_APP, $key, $value);
+	}
+
+	public function forStorageKey($key, $value)
+	{
+		return $this->forEnvKey(self::ENV_STORAGE, $key, $value);
+	}
+
+	public function forEnvKey($env, $key, $value)
+	{
+		if ($def = $this->getDefinition($env, $key)) {
+			$value = $this->parseDefinitionValue($def, $value);
+		}
+
+		return $value;
+	}
+
 	/**
 	 * A no-op. Can be used in subclass to setup definitions.
 	 */
