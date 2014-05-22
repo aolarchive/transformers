@@ -142,16 +142,38 @@ class Transformer
 		return $ret;
 	}
 
+	/**
+	 * Transforms data by key for app.
+	 *
+	 * @param array  $key   Data for transformation.
+	 * @param mixed  $value Value for transformation
+	 * @return mixed
+	 */
 	public function forAppKey($key, $value)
 	{
 		return $this->forEnvKey(self::ENV_APP, $key, $value);
 	}
 
+	/**
+	 * Transforms data by key for storage.
+	 *
+	 * @param array  $key   Data for transformation.
+	 * @param mixed  $value Value for transformation
+	 * @return mixed
+	 */
 	public function forStorageKey($key, $value)
 	{
 		return $this->forEnvKey(self::ENV_STORAGE, $key, $value);
 	}
 
+	/**
+	 * Transforms data by key for a specific environment.
+	 *
+	 * @param string $env   Environment name.
+	 * @param array  $key   Data for transformation.
+	 * @param mixed  $value Value for transformation
+	 * @return mixed
+	 */
 	public function forEnvKey($env, $key, $value)
 	{
 		if ($def = $this->getDefinition($env, $key)) {
@@ -162,7 +184,7 @@ class Transformer
 	}
 
 	/**
-	 * A no-op. Can be used in subclass to setup definitions.
+	 * No-op. Can be used in subclass to setup definitions.
 	 */
 	protected function definitions()
 	{
