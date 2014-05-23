@@ -107,9 +107,9 @@ class Transformer
 	 * @param array $data Data for transformation.
 	 * @return array
 	 */
-	public function forApp($data)
+	public function toApp($data)
 	{
-		return $this->forEnv(self::ENV_APP, $data);
+		return $this->toEnv(self::ENV_APP, $data);
 	}
 
 	/**
@@ -118,9 +118,9 @@ class Transformer
 	 * @param array $data Data for transformation.
 	 * @return array
 	 */
-	public function forStorage($data)
+	public function toStorage($data)
 	{
-		return $this->forEnv(self::ENV_STORAGE, $data);
+		return $this->toEnv(self::ENV_STORAGE, $data);
 	}
 
 	/**
@@ -130,7 +130,7 @@ class Transformer
 	 * @param array  $data Data for transformation.
 	 * @return array
 	 */
-	public function forEnv($env, $data)
+	public function toEnv($env, $data)
 	{
 		if (!in_array($env, [self::ENV_APP, self::ENV_STORAGE])) {
 			throw new \InvalidArgumentException('Unknown environment: ' . $env);
@@ -156,9 +156,9 @@ class Transformer
 	 * @param mixed $value Value for transformation
 	 * @return mixed
 	 */
-	public function forAppKey($key, $value)
+	public function toAppKey($key, $value)
 	{
-		return $this->forEnvKey(self::ENV_APP, $key, $value);
+		return $this->toEnvKey(self::ENV_APP, $key, $value);
 	}
 
 	/**
@@ -168,9 +168,9 @@ class Transformer
 	 * @param mixed $value Value for transformation
 	 * @return mixed
 	 */
-	public function forStorageKey($key, $value)
+	public function toStorageKey($key, $value)
 	{
-		return $this->forEnvKey(self::ENV_STORAGE, $key, $value);
+		return $this->toEnvKey(self::ENV_STORAGE, $key, $value);
 	}
 
 	/**
@@ -181,7 +181,7 @@ class Transformer
 	 * @param mixed  $value Value for transformation
 	 * @return mixed
 	 */
-	public function forEnvKey($env, $key, $value)
+	public function toEnvKey($env, $key, $value)
 	{
 		if ($def = $this->getDefinition($env, $key)) {
 			$value = $this->parseDefinitionValue($def, $value);

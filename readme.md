@@ -35,7 +35,7 @@ With those definitions loaded in all we have to do is transform the data for our
 
     <?php
 
-    $post = $transform->forApp($post);
+    $post = $transform->toApp($post);
 
     var_dump($post);
     // [
@@ -52,7 +52,7 @@ Alright! That's already a whole lot better. And if you need to manipulate the va
     <?php
 
     $post['title'] = 'How to be awesome';
-    $post = $transform->forStorage($post);
+    $post = $transform->toStorage($post);
 
     var_dump($post);
     // [
@@ -71,7 +71,7 @@ Lets tackle those tags next. They are stored as JSON string so we will want to `
     $transform->define('tags', 'tags', 'json_decode', 'json_encode');
     // ...
 
-    $post = $transform->forApp($post);
+    $post = $transform->toApp($post);
 
     var_dump($post);
     // [
