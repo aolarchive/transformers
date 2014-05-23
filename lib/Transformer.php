@@ -183,11 +183,34 @@ class Transformer
 	 */
 	public function toEnvKey($env, $key, $value)
 	{
+		if (!in_array($env, [self::ENV_APP, self::ENV_STORAGE])) {
+			throw new \InvalidArgumentException('Unknown environment: ' . $env);
+		}
+
 		if ($def = $this->getDefinition($env, $key)) {
 			$value = $this->parseDefinitionValue($def, $value);
 		}
 
 		return $value;
+	}
+
+	public function toAppKeyArray($key, $values)
+	{
+		return $this->toEnvKeyArray(self::ENV_APP, $key, $values);
+	}
+
+	public function toStorageKeyArray($key, $values)
+	{
+		return $this->toEnvKeyArray(self::ENV_STORAGE, $key, $values);
+	}
+
+	public function toEnvKeyArray($env, $key, $values)
+	{
+		foreach ($values as &$value) {
+			$value = $this->toEnvKey($env, $key, $value);
+		}
+
+		return $values;
 	}
 
 	/**

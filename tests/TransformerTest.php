@@ -29,13 +29,33 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 	public function testTransformAppKey()
 	{
 		$this->transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
-		$this->transformer->toAppKey('status', 'published');
+		$data = $this->transformer->toAppKey('status', 2);
+
+		$this->assertSame('published', $data);
 	}
 
 	public function testTransformStorageKey()
 	{
 		$this->transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
-		$this->transformer->toStorageKey('status', 2);
+		$data = $this->transformer->toStorageKey('status', 'published');
+
+		$this->assertSame(2, $data);
+	}
+
+	public function testTransformAppKeyArray()
+	{
+		$this->transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
+		$data = $this->transformer->toAppKeyArray('status', [2, 1]);
+
+		$this->assertSame(['published', 'draft'], $data);
+	}
+
+	public function testTransformStorageKeyArray()
+	{
+		$this->transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
+		$data = $this->transformer->toStorageKeyArray('status', ['published', 'draft']);
+
+		$this->assertSame([2, 1], $data);
 	}
 
 	public function testTransformValueToApp()
