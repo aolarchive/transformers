@@ -11,11 +11,11 @@ class Transformer
 	const DEFINITION_FUNC = 'func';
 	const DEFINITION_ARGS = 'args';
 
+	/** @var Utility Utility object. */
+	protected $utility;
+
 	/** @var array Transformation definitions */
 	private $definitions = [];
-
-	/** @var Utility Utility object. */
-	private $utility;
 
 	/**
 	 * @param Utility $utility Utility object.
