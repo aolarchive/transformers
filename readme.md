@@ -52,7 +52,7 @@ Alright! That's already a whole lot better. And if you need to manipulate the va
     <?php
 
     $post['title'] = 'How to be awesome';
-    $post = $transform->toStorage($post);
+    $post = $transform->toExt($post);
 
     var_dump($post);
     // [

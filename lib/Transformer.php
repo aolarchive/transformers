@@ -4,8 +4,8 @@ namespace Amp\Transformers;
 
 class Transformer
 {
-	const ENV_APP = 'app';
-	const ENV_STORAGE = 'storage';
+	const APP = 'application';
+	const EXT = 'external';
 
 	const DEFINITION_KEY = 'key';
 	const DEFINITION_FUNC = 'func';
@@ -45,12 +45,12 @@ class Transformer
 		$app_args = [],
 		$storage_args = []
 	) {
-		$this->definitions[self::ENV_STORAGE][$app_name] = [
+		$this->definitions[self::EXT][$app_name]     = [
 			self::DEFINITION_KEY  => $storage_name,
 			self::DEFINITION_FUNC => $storage_func,
 			self::DEFINITION_ARGS => $storage_args
 		];
-		$this->definitions[self::ENV_APP][$storage_name] = [
+		$this->definitions[self::APP][$storage_name] = [
 			self::DEFINITION_KEY  => $app_name,
 			self::DEFINITION_FUNC => $app_func,
 			self::DEFINITION_ARGS => $app_args,
@@ -105,37 +105,62 @@ class Transformer
 	 * Transforms data for app.
 	 *
 	 * @param array $data Data for transformation.
+	 * @param null  $key
+	 * @param bool  $array
 	 * @return array
 	 */
-	public function toApp($data)
+	public function toApp($data, $key = null, $array = false)
 	{
-		return $this->toEnv(self::ENV_APP, $data);
+		return $this->to(self::APP, $data, $key, $array);
 	}
 
 	/**
 	 * Transforms data for storage.
 	 *
 	 * @param array $data Data for transformation.
+	 * @param null  $key
+	 * @param bool  $array
 	 * @return array
 	 */
-	public function toStorage($data)
+	public function toExt($data, $key = null, $array = false)
 	{
-		return $this->toEnv(self::ENV_STORAGE, $data);
+		return $this->to(self::EXT, $data, $key, $array);
 	}
 
 	/**
 	 * Transforms data for a specific environment.
 	 *
-	 * @param string $env  Environment name.
-	 * @param array  $data Data for transformation.
+	 * @param string      $env  Environment name.
+	 * @param array       $data Data for transformation.
+	 * @param null|string $key
+	 * @param bool        $array
 	 * @return array
 	 */
-	public function toEnv($env, $data)
+	public function to($env, $data, $key = null, $array = false)
 	{
-		if (!in_array($env, [self::ENV_APP, self::ENV_STORAGE])) {
+		if (!in_array($env, [self::APP, self::EXT])) {
 			throw new \InvalidArgumentException('Unknown environment: ' . $env);
 		}
 
+		// Handle arrays by recursion
+		if ($array) {
+			$map = function ($data) use ($env, $key) {
+				return $this->to($env, $data, $key);
+			};
+
+			return array_map($map, $data);
+		}
+
+		// Handle keys
+		if (!is_null($key)) {
+			if (!$def = $this->getDefinition($env, $key)) {
+				throw new \InvalidArgumentException('Unknown key: ' . $key);
+			}
+
+			return $this->parseDefinitionValue($def, $data);
+		}
+
+		// Transform a data set
 		$ret = [];
 		foreach ($data as $key => $value) {
 			if ($def = $this->getDefinition($env, $key)) {
@@ -150,70 +175,6 @@ class Transformer
 	}
 
 	/**
-	 * Transforms data by key for app.
-	 *
-	 * @param array $key   Data for transformation.
-	 * @param mixed $value Value for transformation
-	 * @return mixed
-	 */
-	public function toAppKey($key, $value)
-	{
-		return $this->toEnvKey(self::ENV_APP, $key, $value);
-	}
-
-	/**
-	 * Transforms data by key for storage.
-	 *
-	 * @param array $key   Data for transformation.
-	 * @param mixed $value Value for transformation
-	 * @return mixed
-	 */
-	public function toStorageKey($key, $value)
-	{
-		return $this->toEnvKey(self::ENV_STORAGE, $key, $value);
-	}
-
-	/**
-	 * Transforms data by key for a specific environment.
-	 *
-	 * @param string $env   Environment name.
-	 * @param array  $key   Data for transformation.
-	 * @param mixed  $value Value for transformation
-	 * @return mixed
-	 */
-	public function toEnvKey($env, $key, $value)
-	{
-		if (!in_array($env, [self::ENV_APP, self::ENV_STORAGE])) {
-			throw new \InvalidArgumentException('Unknown environment: ' . $env);
-		}
-
-		if ($def = $this->getDefinition($env, $key)) {
-			$value = $this->parseDefinitionValue($def, $value);
-		}
-
-		return $value;
-	}
-
-	public function toAppKeyArray($key, $values)
-	{
-		return $this->toEnvKeyArray(self::ENV_APP, $key, $values);
-	}
-
-	public function toStorageKeyArray($key, $values)
-	{
-		return $this->toEnvKeyArray(self::ENV_STORAGE, $key, $values);
-	}
-
-	public function toEnvKeyArray($env, $key, $values)
-	{
-		foreach ($values as &$value) {
-			$value = $this->toEnvKey($env, $key, $value);
-		}
-
-		return $values;
-	}
-
-	/**
 	 * No-op. Can be used in subclass to setup definitions.
 	 */
 	protected function definitions()
@@ -221,12 +182,12 @@ class Transformer
 
 	}
 
-	protected function afterApp($data)
+	protected function afterApplication($data)
 	{
 		return $data;
 	}
 
-	protected function afterStorage($data)
+	protected function afterExternal($data)
 	{
 		return $data;
 	}

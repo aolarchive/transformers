@@ -7,111 +7,91 @@ use Amp\Transformers\Utility;
 
 class TransformerTest extends \PHPUnit_Framework_TestCase
 {
-	/** @var Transformer */
+	/** @var Transformer Transformer object. */
 	private $transformer;
 
-	public function testTransformNameToApp()
+	/**
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function testInvalidEnvironmentShouldThrowException()
 	{
-		$this->transformer->define('id', 'postid');
-		$data = $this->transformer->toApp(['postid' => 5]);
-
-		$this->assertSame(['id' => 5], $data);
+		$this->transformer->to('badenv', ['foo' => 'bar']);
 	}
 
-	public function testTransformNameToStorage()
+	/**
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function testInvalidKeyShoulThrowException()
 	{
-		$this->transformer->define('id', 'postid');
-		$data = $this->transformer->toStorage(['id' => 5]);
-
-		$this->assertSame(['postid' => 5], $data);
+		$this->transformer->toApp([], 'badkey');
 	}
 
-	public function testTransformAppKey()
+	/**
+	 * @dataProvider dataProvider
+	 */
+	public function testData($app, $ext, $check_type = true)
 	{
-		$this->transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
-		$data = $this->transformer->toAppKey('status', 2);
-
-		$this->assertSame('published', $data);
+		if ($check_type) {
+			$this->assertSame($app, $this->transformer->toApp($ext));
+			$this->assertSame($ext, $this->transformer->toExt($app));
+		} else {
+			$this->assertEquals($app, $this->transformer->toApp($ext));
+			$this->assertEquals($ext, $this->transformer->toExt($app));
+		}
 	}
 
-	public function testTransformStorageKey()
+	/**
+	 * @dataProvider dataProvider
+	 */
+	public function testDataKey($app, $ext, $check_type = true)
 	{
-		$this->transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
-		$data = $this->transformer->toStorageKey('status', 'published');
+		$app_key = key($app);
+		$app_val = $app[$app_key];
+		$ext_key = key($ext);
+		$ext_val = $ext[$ext_key];
 
-		$this->assertSame(2, $data);
+		if ($check_type) {
+			$this->assertSame($app_val, $this->transformer->toApp($ext_val, $ext_key));
+			$this->assertSame($ext_val, $this->transformer->toExt($app_val, $app_key));
+		} else {
+			$this->assertEquals($app_val, $this->transformer->toApp($ext_val, $ext_key));
+			$this->assertEquals($ext_val, $this->transformer->toExt($app_val, $app_key));
+		}
 	}
 
-	public function testTransformAppKeyArray()
+	public function testDataArray()
 	{
-		$this->transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
-		$data = $this->transformer->toAppKeyArray('status', [2, 1]);
+		$app = ['published', 'draft'];
+		$ext = [2, 1];
 
-		$this->assertSame(['published', 'draft'], $data);
+		$this->assertSame($app, $this->transformer->toApp($ext, 'status', true));
+		$this->assertSame($ext, $this->transformer->toExt($app, 'status', true));
 	}
 
-	public function testTransformStorageKeyArray()
+	public function dataProvider()
 	{
-		$this->transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
-		$data = $this->transformer->toStorageKeyArray('status', ['published', 'draft']);
+		return [
+			[['title' => 'foobar'], ['title' => 'foobar']], // Pass thru
+			[['body' => 'foobar'], ['Content' => 'foobar']], // Simple mapping
+			[['id' => 5], ['postid' => '5']], // Mapping with callable
 
-		$this->assertSame([2, 1], $data);
-	}
-
-	public function testTransformValueToApp()
-	{
-		$this->transformer->define('id', 'postid', 'intval');
-		$data = $this->transformer->toApp(['postid' => '5']);
-
-		$this->assertSame(['id' => 5], $data);
-	}
-
-	public function testTransformValueToStorage()
-	{
-		$this->transformer->define('id', 'postid', null, 'strval');
-		$data = $this->transformer->toStorage(['id' => 5]);
-
-		$this->assertSame(['postid' => '5'], $data);
-	}
-
-	/* Utility transformation methods ****************************************/
-
-	public function testBitmask()
-	{
-		$this->transformer->defineMask('status', 'status', [5 => 'foo', 6 => 'bar']);
-
-		$data = $this->transformer->toApp(['status' => 5]);
-		$this->assertSame(['status' => 'foo'], $data);
-
-		$data = $this->transformer->toStorage(['status' => 'bar']);
-		$this->assertSame(['status' => 6], $data);
-	}
-
-	public function testConvertDateTimeToMysql()
-	{
-		$data = ['date' => date_create('2014-01-01')];
-		$this->transformer->defineDate('date', 'date');
-
-		$data = $this->transformer->toStorage($data);
-		$this->assertSame(['date' => '2014-01-01 00:00:00'], $data);
-	}
-
-	public function testJson()
-	{
-		$this->transformer->defineJson('metadata', 'metadata');
-
-		$array = ['metadata' => ['foo' => 'bar']];
-		$json  = ['metadata' => '{"foo":"bar"}'];
-
-		$data = $this->transformer->toStorage($array);
-		$this->assertSame($json, $data);
-
-		$data = $this->transformer->toApp($json);
-		$this->assertSame($array, $data);
+			// Test definition shortcuts
+			[['created' => date_create('2014-01')], ['InsertDate' => '2014-01-01 00:00:00'], false], // Date
+			[['meta' => ['foo' => 'bar']], ['MetaData' => '{"foo":"bar"}']], // Json
+			[['status' => 'draft'], ['status' => 1]], // Mask
+		];
 	}
 
 	protected function setUp()
 	{
-		$this->transformer = new Transformer(new Utility());
+		$transformer = new Transformer(new Utility());
+		$transformer->define('id', 'postid', 'intval', 'strval');
+		$transformer->define('title', 'title');
+		$transformer->define('body', 'Content');
+		$transformer->defineDate('created', 'InsertDate');
+		$transformer->defineJson('meta', 'MetaData');
+		$transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
+
+		$this->transformer = $transformer;
 	}
 }
