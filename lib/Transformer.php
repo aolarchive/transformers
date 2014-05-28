@@ -174,6 +174,27 @@ class Transformer
 		return $ret;
 	}
 
+	public function getKeysApp()
+	{
+		return $this->getKeys(self::APP);
+	}
+
+	public function getKeysExt()
+	{
+		return $this->getKeys(self::EXT);
+	}
+
+	public function getKeys($env)
+	{
+		if (!in_array($env, [self::APP, self::EXT])) {
+			throw new \InvalidArgumentException('Unknown environment: ' . $env);
+		}
+
+		$env = $env === self::APP ? self::EXT : self::APP;
+
+		return array_keys($this->definitions[$env]);
+	}
+
 	/**
 	 * No-op. Can be used in subclass to setup definitions.
 	 */
