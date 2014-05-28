@@ -4,8 +4,8 @@ namespace Amp\Transformers;
 
 class Transformer
 {
-	const APP = 'application';
-	const EXT = 'external';
+	const APP = 'app';
+	const EXT = 'ext';
 
 	const DEFINITION_KEY = 'key';
 	const DEFINITION_FUNC = 'func';
@@ -138,9 +138,7 @@ class Transformer
 	 */
 	public function to($env, $data, $key = null, $array = false)
 	{
-		if (!in_array($env, [self::APP, self::EXT])) {
-			throw new \InvalidArgumentException('Unknown environment: ' . $env);
-		}
+		$this->validateEnvironment($env);
 
 		// Handle arrays by recursion
 		if ($array) {
@@ -161,15 +159,17 @@ class Transformer
 		}
 
 		// Transform a data set
-		$ret = [];
+		$method_before = 'before' . ucfirst($env);
+		$method_after  = 'after' . ucfirst($env);
+		$ret           = [];
+
+		$data = $this->$method_before($data);
 		foreach ($data as $key => $value) {
 			if ($def = $this->getDefinition($env, $key)) {
 				$ret[$def[self::DEFINITION_KEY]] = $this->parseDefinitionValue($def, $value);
 			}
 		}
-
-		$after = 'after' . ucfirst($env);
-		$ret   = $this->$after($ret);
+		$ret = $this->$method_after($ret);
 
 		return $ret;
 	}
@@ -186,9 +186,7 @@ class Transformer
 
 	public function getKeys($env)
 	{
-		if (!in_array($env, [self::APP, self::EXT])) {
-			throw new \InvalidArgumentException('Unknown environment: ' . $env);
-		}
+		$this->validateEnvironment($env);
 
 		$env = $env === self::APP ? self::EXT : self::APP;
 
@@ -203,12 +201,22 @@ class Transformer
 
 	}
 
-	protected function afterApplication($data)
+	protected function beforeApp($data)
 	{
 		return $data;
 	}
 
-	protected function afterExternal($data)
+	protected function beforeExt($data)
+	{
+		return $data;
+	}
+
+	protected function afterApp($data)
+	{
+		return $data;
+	}
+
+	protected function afterExt($data)
 	{
 		return $data;
 	}
@@ -225,6 +233,13 @@ class Transformer
 		return isset($this->definitions[$env][$key])
 			? $this->definitions[$env][$key]
 			: null;
+	}
+
+	private function validateEnvironment($env)
+	{
+		if (!in_array($env, [self::APP, self::EXT])) {
+			throw new \InvalidArgumentException('Unknown environment: ' . $env);
+		}
 	}
 
 	/**
