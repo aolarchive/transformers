@@ -59,6 +59,20 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		}
 	}
 
+	public function testGetKeysApp()
+	{
+		$actual = $this->transformer->getKeysApp();
+		$expected = ['id', 'title', 'body', 'created', 'meta', 'status'];
+		$this->assertEquals($expected, $actual);
+	}
+
+	public function testGetKeysExt()
+	{
+		$actual = $this->transformer->getKeysExt();
+		$expected = ['postid', 'title', 'Content', 'InsertDate', 'MetaData', 'status'];
+		$this->assertEquals($expected, $actual);
+	}
+
 	public function testDataArray()
 	{
 		$app = ['published', 'draft'];
