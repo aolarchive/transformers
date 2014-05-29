@@ -140,6 +140,10 @@ class Transformer
 	{
 		$this->validateEnvironment($env);
 
+		if (!is_array($data) && empty($data)) {
+			return null;
+		}
+
 		// Handle arrays by recursion
 		if ($array) {
 			$map = function ($data) use ($env, $key) {

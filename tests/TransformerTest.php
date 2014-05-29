@@ -18,6 +18,13 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$this->transformer->to('badenv', ['foo' => 'bar']);
 	}
 
+	public function testNonArrayEmptyValueShouldReturnNull()
+	{
+		$actual = $this->transformer->toApp('');
+
+		$this->assertNull($actual);
+	}
+
 	/**
 	 * @expectedException \InvalidArgumentException
 	 */
@@ -61,14 +68,14 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 
 	public function testGetKeysApp()
 	{
-		$actual = $this->transformer->getKeysApp();
+		$actual   = $this->transformer->getKeysApp();
 		$expected = ['id', 'title', 'body', 'created', 'meta', 'status'];
 		$this->assertEquals($expected, $actual);
 	}
 
 	public function testGetKeysExt()
 	{
-		$actual = $this->transformer->getKeysExt();
+		$actual   = $this->transformer->getKeysExt();
 		$expected = ['postid', 'title', 'Content', 'InsertDate', 'MetaData', 'status'];
 		$this->assertEquals($expected, $actual);
 	}
