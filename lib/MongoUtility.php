@@ -2,7 +2,7 @@
 
 namespace Amp\Transformers;
 
-class MongoUtility
+class MongoUtility extends Utility
 {
 	public function convertStringToMongoId($str)
 	{
