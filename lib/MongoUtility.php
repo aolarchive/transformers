@@ -2,6 +2,9 @@
 
 namespace Amp\Transformers;
 
+use MongoDate;
+use MongoId;
+
 class MongoUtility extends Utility
 {
 	public function convertStringToMongoId($str)
@@ -10,7 +13,7 @@ class MongoUtility extends Utility
 			return null;
 		}
 
-		return new \MongoId($str);
+		return new MongoId($str);
 	}
 
 	public function convertMongoIdToString(MongoId $id)
@@ -49,9 +52,9 @@ class MongoUtility extends Utility
 		}
 
 		if ($date instanceof \DateTime) {
-			$mdate = new \MongoDate($date->getTimestamp());
+			$mdate = new MongoDate($date->getTimestamp());
 		} else {
-			$mdate = new \MongoDate(strtotime($date));
+			$mdate = new MongoDate(strtotime($date));
 		}
 
 		return $mdate;
