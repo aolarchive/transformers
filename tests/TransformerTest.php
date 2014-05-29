@@ -2,6 +2,7 @@
 
 namespace Amp\Transformers\Tests;
 
+use Amp\Transformers\MysqlUtility;
 use Amp\Transformers\Transformer;
 use Amp\Transformers\Utility;
 
@@ -105,7 +106,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 
 	protected function setUp()
 	{
-		$transformer = new Transformer(new Utility());
+		$transformer = new Transformer(new MysqlUtility());
 		$transformer->define('id', 'postid', 'intval', 'strval');
 		$transformer->define('title', 'title');
 		$transformer->define('body', 'Content');
