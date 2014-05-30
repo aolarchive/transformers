@@ -11,7 +11,7 @@ interface UtilityInterface
 	public function idToApp($id);
 
 	/**
-	 * @param int $id ID.
+	 * @param mixed $id ID.
 	 * @return mixed
 	 */
 	public function idToExt($id);

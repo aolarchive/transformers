@@ -11,7 +11,7 @@ class Mongo extends Utility implements UtilityInterface
 {
 	/**
 	 * @param \MongoId|null $id
-	 * @return int
+	 * @return string
 	 */
 	public function idToApp($id)
 	{
@@ -19,7 +19,7 @@ class Mongo extends Utility implements UtilityInterface
 	}
 
 	/**
-	 * @param int $id
+	 * @param string $id
 	 * @return MongoId|null
 	 */
 	public function idToExt($id)
