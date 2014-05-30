@@ -2,6 +2,8 @@
 
 namespace Amp\Transformers\DataStore;
 
+use Amp\Transformers\Exception;
+
 trait DefinitionsTrait
 {
 	/** @var \Amp\Transformers\DataStore\UtilityInterface Utility object. */
@@ -24,6 +26,7 @@ trait DefinitionsTrait
 	 */
 	public function defineDate($app_name, $ext_name)
 	{
+		$this->validateUtilityInterface();
 		$this->define($app_name, $ext_name, [$this->utility, 'dateToApp'], [$this->utility, 'dateToExt']);
 	}
 
@@ -35,6 +38,7 @@ trait DefinitionsTrait
 	 */
 	public function defineDateTime($app_name, $ext_name)
 	{
+		$this->validateUtilityInterface();
 		$this->define($app_name, $ext_name, [$this->utility, 'datetimeToApp'], [$this->utility, 'datetimeToExt']);
 	}
 
@@ -46,6 +50,15 @@ trait DefinitionsTrait
 	 */
 	public function defineId($app_name, $ext_name)
 	{
+		$this->validateUtilityInterface();
 		$this->define($app_name, $ext_name, [$this->utility, 'idToApp'], [$this->utility, 'idToExt']);
+	}
+
+	private function validateUtilityInterface()
+	{
+		$interface = 'Amp\\Transformers\\DataStore\\UtilityInterface';
+		if (!$this->utility instanceof $interface) {
+			throw new Exception('This method requires the Utility class to implement ' . $interface);
+		}
 	}
 }
