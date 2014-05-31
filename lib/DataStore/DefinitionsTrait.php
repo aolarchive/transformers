@@ -6,9 +6,6 @@ use Amp\Transformers\Exception;
 
 trait DefinitionsTrait
 {
-	/** @var \Amp\Transformers\DataStore\UtilityInterface Utility object. */
-	protected $utility;
-
 	abstract public function define(
 		$app_name,
 		$ext_name,
@@ -19,6 +16,11 @@ trait DefinitionsTrait
 	);
 
 	/**
+	 * @return \Amp\Transformers\DataStore\UtilityInterface
+	 */
+	abstract protected function getUtility();
+
+	/**
 	 * Defines a date property.
 	 *
 	 * @param string $app_name Property name in application context.
@@ -27,7 +29,7 @@ trait DefinitionsTrait
 	public function defineDate($app_name, $ext_name)
 	{
 		$this->validateUtilityInterface();
-		$this->define($app_name, $ext_name, [$this->utility, 'dateToApp'], [$this->utility, 'dateToExt']);
+		$this->define($app_name, $ext_name, [$this->getUtility(), 'dateToApp'], [$this->getUtility(), 'dateToExt']);
 	}
 
 	/**
@@ -39,7 +41,7 @@ trait DefinitionsTrait
 	public function defineDateTime($app_name, $ext_name)
 	{
 		$this->validateUtilityInterface();
-		$this->define($app_name, $ext_name, [$this->utility, 'datetimeToApp'], [$this->utility, 'datetimeToExt']);
+		$this->define($app_name, $ext_name, [$this->getUtility(), 'datetimeToApp'], [$this->getUtility(), 'datetimeToExt']);
 	}
 
 	/**
@@ -51,13 +53,13 @@ trait DefinitionsTrait
 	public function defineId($app_name, $ext_name)
 	{
 		$this->validateUtilityInterface();
-		$this->define($app_name, $ext_name, [$this->utility, 'idToApp'], [$this->utility, 'idToExt']);
+		$this->define($app_name, $ext_name, [$this->getUtility(), 'idToApp'], [$this->getUtility(), 'idToExt']);
 	}
 
 	private function validateUtilityInterface()
 	{
 		$interface = 'Amp\\Transformers\\DataStore\\UtilityInterface';
-		if (!$this->utility instanceof $interface) {
+		if (!$this->getUtility() instanceof $interface) {
 			throw new Exception('This method requires the Utility class to implement ' . $interface);
 		}
 	}

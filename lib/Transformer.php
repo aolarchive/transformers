@@ -184,6 +184,14 @@ class Transformer
 	}
 
 	/**
+	 * @return Utility
+	 */
+	public function getUtility()
+	{
+		return $this->utility;
+	}
+
+	/**
 	 * No-op. To be used in subclass to setup definitions.
 	 */
 	protected function definitions()
