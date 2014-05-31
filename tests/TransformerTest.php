@@ -28,7 +28,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @expectedException \InvalidArgumentException
 	 */
-	public function testInvalidKeyShoulThrowException()
+	public function testInvalidKeyShouldThrowException()
 	{
 		$this->transformer->toApp([], 'badkey');
 	}
@@ -69,14 +69,14 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 	public function testGetKeysApp()
 	{
 		$actual   = $this->transformer->getKeysApp();
-		$expected = ['id', 'title', 'body', 'created', 'meta', 'status'];
+		$expected = ['id', 'title', 'body', 'meta', 'status'];
 		$this->assertEquals($expected, $actual);
 	}
 
 	public function testGetKeysExt()
 	{
 		$actual   = $this->transformer->getKeysExt();
-		$expected = ['postid', 'title', 'Content', 'InsertDate', 'MetaData', 'status'];
+		$expected = ['postid', 'title', 'Content', 'MetaData', 'status'];
 		$this->assertEquals($expected, $actual);
 	}
 
@@ -97,7 +97,6 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 			[['id' => 5], ['postid' => '5']], // Mapping with callable
 
 			// Test definition shortcuts
-			[['created' => date_create('2014-01')], ['InsertDate' => '2014-01-01 00:00:00'], false], // Date
 			[['meta' => ['foo' => 'bar']], ['MetaData' => '{"foo":"bar"}']], // Json
 			[['status' => 'draft'], ['status' => 1]], // Mask
 		];
@@ -109,7 +108,6 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$transformer->define('id', 'postid', 'intval', 'strval');
 		$transformer->define('title', 'title');
 		$transformer->define('body', 'Content');
-		$transformer->defineDate('created', 'InsertDate');
 		$transformer->defineJson('meta', 'MetaData');
 		$transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
 

@@ -30,45 +30,31 @@ class Transformer
 	/**
 	 * Saves field definitions.
 	 *
-	 * @param string   $app_name     Property name in application context.
-	 * @param string   $storage_name Property name storage context.
-	 * @param callable $app_func     Callable for transforming property to app context.
-	 * @param callable $storage_func Callable for transforming property to storage context.
-	 * @param array    $app_args     Arguments for app callback.
-	 * @param array    $storage_args Arguments for storage callback.
+	 * @param string   $app_name Property name in application context.
+	 * @param string   $ext_name Property name storage context.
+	 * @param callable $app_func Callable for transforming property to app context.
+	 * @param callable $ext_func Callable for transforming property to storage context.
+	 * @param array    $app_args Arguments for app callback.
+	 * @param array    $ext_args Arguments for storage callback.
 	 */
 	public function define(
 		$app_name,
-		$storage_name,
+		$ext_name,
 		callable $app_func = null,
-		callable $storage_func = null,
+		callable $ext_func = null,
 		$app_args = [],
-		$storage_args = []
+		$ext_args = []
 	) {
-		$this->definitions[self::EXT][$app_name]     = [
-			self::DEFINITION_KEY  => $storage_name,
-			self::DEFINITION_FUNC => $storage_func,
-			self::DEFINITION_ARGS => $storage_args
+		$this->definitions[self::EXT][$app_name] = [
+			self::DEFINITION_KEY  => $ext_name,
+			self::DEFINITION_FUNC => $ext_func,
+			self::DEFINITION_ARGS => $ext_args
 		];
-		$this->definitions[self::APP][$storage_name] = [
+		$this->definitions[self::APP][$ext_name] = [
 			self::DEFINITION_KEY  => $app_name,
 			self::DEFINITION_FUNC => $app_func,
 			self::DEFINITION_ARGS => $app_args,
 		];
-	}
-
-	/**
-	 * Defines a date property.
-	 *
-	 * App format: DateTime object
-	 * Storage format: YYYY-MM-DD HH:MM:SS
-	 *
-	 * @param string $app_name     Property name in application context.
-	 * @param string $storage_name Property name storage context.
-	 */
-	public function defineDate($app_name, $storage_name)
-	{
-		$this->define($app_name, $storage_name, 'date_create', [$this->utility, 'convertDateToMysql']);
 	}
 
 	/**
@@ -198,7 +184,7 @@ class Transformer
 	}
 
 	/**
-	 * No-op. Can be used in subclass to setup definitions.
+	 * No-op. To be used in subclass to setup definitions.
 	 */
 	protected function definitions()
 	{
