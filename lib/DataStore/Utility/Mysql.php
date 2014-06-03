@@ -40,7 +40,7 @@ class Mysql extends Utility implements UtilityInterface
 	 */
 	public function dateToExt($date)
 	{
-		return empty($date) ? null : $date->format('Y-m-d');
+		return !$date instanceof \DateTime ? null : $date->format('Y-m-d');
 	}
 
 	/**
@@ -58,6 +58,6 @@ class Mysql extends Utility implements UtilityInterface
 	 */
 	public function dateTimeToExt($date)
 	{
-		return empty($date) ? null : $date->format('Y-m-d H:i:s');
+		return !$date instanceof \DateTime ? null : $date->format('Y-m-d H:i:s');
 	}
 }
