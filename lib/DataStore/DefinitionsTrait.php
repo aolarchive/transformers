@@ -41,7 +41,7 @@ trait DefinitionsTrait
 	public function defineDateTime($app_name, $ext_name)
 	{
 		$this->validateUtilityInterface();
-		$this->define($app_name, $ext_name, [$this->getUtility(), 'datetimeToApp'], [$this->getUtility(), 'datetimeToExt']);
+		$this->define($app_name, $ext_name, [$this->getUtility(), 'dateTimeToApp'], [$this->getUtility(), 'dateTimeToExt']);
 	}
 
 	/**
