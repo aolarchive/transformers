@@ -48,7 +48,25 @@ class MongoTest extends \PHPUnit_Framework_TestCase
 	{
 		$id = new \MongoId('4af9f23d8ead0e1d32000000');
 
-		$this->assertEquals(date_create('2009-11-10T18:07:41-0500'), $this->utility->getCreatedDateFromMongoId($id));
+		$this->assertEquals(date_create('2009-11-10T18:07:41-0500'), $this->utility->getDateFromMongoId($id));
+	}
+
+	public function testMongoIdFromDate()
+	{
+		$id = new \MongoId('4af9f23d8ead0e1d32000000');
+		$timestamp = $id->getTimestamp();
+
+		$new_id = $this->utility->getMongoIdFromDate($timestamp);
+		$this->assertEquals($timestamp, $new_id->getTimestamp());
+
+		$new_id = $this->utility->getMongoIdFromDate('2009-11-10T18:07:41-0500');
+		$this->assertEquals($timestamp, $new_id->getTimestamp());
+
+		$new_id = $this->utility->getMongoIdFromDate(date_create('2009-11-10T18:07:41-0500'));
+		$this->assertEquals($timestamp, $new_id->getTimestamp());
+
+		$new_id = $this->utility->getMongoIdFromDate('bogus_date_string');
+		$this->assertNull($new_id);
 	}
 
 	protected function setUp()

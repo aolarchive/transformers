@@ -72,11 +72,56 @@ class Mongo extends Utility implements UtilityInterface
 	// Additional methods
 	///////////////////////////////////////////////////////////////////////////
 
-	public function getCreatedDateFromMongoId(MongoId $id)
+	/**
+	 * Get created DateTime from a MongoId object.
+	 *
+	 * @param MongoId $id
+	 * @return \DateTime
+	 */
+	public function getDateFromMongoId(MongoId $id)
 	{
 		$date_time = new \DateTime('@' . $id->getTimestamp());
 		$date_time->setTimezone(new \DateTimeZone(date_default_timezone_get()));
 
 		return $date_time;
+	}
+
+	/**
+	 * Build a new MongoId instance from a given date.
+	 *
+	 * @see http://jwage.com/post/55617183676/mongodb-php-mongodate-tricks
+	 *
+	 * @param mixed $date Date to use to generate MongoId; can be unix timestamp, DateTime, or date string
+	 * @return MongoId
+	 */
+	public function getMongoIdFromDate($date)
+	{
+		static $inc = 0;
+
+		if ($date instanceof \DateTime) {
+			$timestamp = $date->getTimestamp();
+		} else if (is_int($date)) {
+			$timestamp = $date;
+		} else {
+			$timestamp = strtotime($date);
+		}
+
+		if (empty($timestamp)) {
+			return null;
+		}
+
+		$ts = pack('N', $timestamp);
+		$m = substr(md5(gethostname()), 0, 3);
+		$pid = pack('n', posix_getpid());
+		$trail = substr(pack('N', $inc++), 1, 3);
+
+		$bin = sprintf('%s%s%s%s', $ts, $m, $pid, $trail);
+
+		$id = '';
+		for ($i = 0; $i < 12; $i++ ) {
+			$id .= sprintf('%02x', ord($bin[$i]));
+		}
+
+		return new \MongoId($id);
 	}
 }
