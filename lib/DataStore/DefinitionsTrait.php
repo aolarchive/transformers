@@ -59,7 +59,7 @@ trait DefinitionsTrait
 	private function validateUtilityInterface()
 	{
 		if (!$this->getUtility() instanceof UtilityInterface) {
-			throw new Exception('This method requires the Utility class to implement ' . $interface);
+			throw new Exception('This method requires the Utility class to implement Amp\\Transformers\\DataStore\\UtilityInterface');
 		}
 	}
 }
