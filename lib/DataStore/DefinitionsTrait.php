@@ -41,7 +41,7 @@ trait DefinitionsTrait
 	public function defineDateTime($app_name, $ext_name)
 	{
 		$this->validateUtilityInterface();
-		$this->define($app_name, $ext_name, [$this->getUtility(), 'datetimeToApp'], [$this->getUtility(), 'datetimeToExt']);
+		$this->define($app_name, $ext_name, [$this->getUtility(), 'dateTimeToApp'], [$this->getUtility(), 'dateTimeToExt']);
 	}
 
 	/**
@@ -59,7 +59,7 @@ trait DefinitionsTrait
 	private function validateUtilityInterface()
 	{
 		if (!$this->getUtility() instanceof UtilityInterface) {
-			throw new Exception('This method requires the Utility class to implement ' . $interface);
+			throw new Exception('This method requires the Utility class to implement Amp\\Transformers\\DataStore\\UtilityInterface');
 		}
 	}
 }
