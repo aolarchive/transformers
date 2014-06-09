@@ -89,6 +89,11 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame($ext, $this->transformer->toExt($app, 'status', true));
 	}
 
+	public function testFqcn()
+	{
+		$this->assertSame('Amp\\Transformers\\Transformer', $this->transformer->fqcn());
+	}
+
 	public function dataProvider()
 	{
 		return [
