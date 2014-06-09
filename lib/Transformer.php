@@ -192,6 +192,16 @@ class Transformer
 	}
 
 	/**
+	 * Returns the fully qualified class name for the called class.
+	 *
+	 * @return string
+	 */
+	public static function fqcn()
+	{
+		return get_called_class();
+	}
+
+	/**
 	 * No-op. To be used in subclass to setup definitions.
 	 */
 	protected function definitions()
