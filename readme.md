@@ -1,130 +1,202 @@
 # Transformers, roll out!
 
+[![Build Status](https://travis-ci.org/aol/transformers.png)](https://travis-ci.org/aol/transformers)
+[![Latest Stable Version](https://poser.pugx.org/aol/transformers/v/stable.png)](https://packagist.org/packages/aol/transformers)
+[![Latest Unstable Version](https://poser.pugx.org/aol/transformers/v/unstable.png)](https://packagist.org/packages/aol/transformers)
+[![Total Downloads](https://poser.pugx.org/aol/transformers/downloads.png)](https://packagist.org/packages/aol/transformers)
+
 So you have a legacy database (or external service or really any type of persistence layer) that uses some ridiculous naming scheme or data serialization process that is impossible to use or remember. In an ideal world you would go back to the source and fix the problem, but we live in a world of duct tape and krazy glue. This package aims to provide a flexible translation layer for normalizing property names and values between your app and an external data store.
 
     <?php
 
-    $transform = new \Aol\Transformers\Transformer();
+    $transform = new \Aol\Transformers\Transformer(new \Aol\Transformers\Utility);
 
-## Definitions
-Data transformation is handled one row at a time. Lets start with an example blog post.
+## Lets start at the end
+
+Sometimes its best to start at the end. Let start by creating a Transformer object for a post.
 
     <?php
 
+    namespace Acme\Package;
+
+    class PostTransformer extends \Aol\Transformers\Transformer
+    {
+    	use \Aol\Transformers\DataStore\DefinitionsTrait;
+
+    	const STATUS_DRAFT = 'draft';
+    	const STATUS_PUBLISHED = 'published';
+
+        private $status_mask = [
+            1 => self::STATUS_DRAFT,
+            2 => self::STATUS_PUBLISHED,
+        ];
+
+        public function definitions()
+        {
+            
+            $this->defineId('id', 'id', 'intval');
+            $this->defineId('user_id', 'UserID', 'intval');
+            
+            $this->define('title', 'Title');
+            $this->define('time', 'timeToRead', 'floatval');
+			
+			$this->defineBitmask('status', 'status', $this->status_mask);
+			$this->defineDateTime('created', 'entryDate');            
+            $this->defineJson('tags', 'tags');
+        }
+    }
+
+The first argument for any definition is the app name (the name you want to use) and the second is its external name. For properties like "Title" you often just need to normalize the name. Other times its nice to typecast your data so that IDs will always be ints, for example.  You can also do more complex transformations like transform a JSON string to a PHP array for easy manipulation, or map integer values to application constants in your app. And of course it is just as easy to transform everything back to its external format when you need to send it back. Lets look at an example.
+
+	<?php
+
+	$utility = new \Aol\Transformers\DataStore\Utility\Mysql;
+	$transformer = new \Acme\Package\PostTransformer($utility);
+    
+    // Typically the would be fetched from something like mysql
     $post = [
         'id' => '5',
         'UserID' => '100',
-        'entryDate' => '2014-02-14 12:00:00',
         'Title' => 'Example post',
+        'timeToRead' => '5.30',
+        'entryDate' => '2014-02-14 13:05:22',
         'tags' => '["exciting","tags","yay"]',
         'Status' => 2
-    ]
-
-The first thing you'll probably notice is that the property names are all over the place. Lets start by creating a definition for each one of those. We will use the Transformer's `define()` method passing in the normalized name first and the external name second.
-
-    <?php
-
-    $transform->define('id', 'id');
-    $transform->define('user_id', 'UserID');
-    $transform->define('created', 'entryDate');
-    $transform->define('title', 'Title');
-    $transform->define('tags', 'tags');
-    $transform->define('status', 'Status');
-
-With those definitions loaded in all we have to do is transform the data for our app.
-
-    <?php
-
-    $post = $transform->toApp($post);
-
-    var_dump($post);
-    // [
-    //     'id' => '5',
-    //     'user_id' => '100',
-    //     'created' => '2014-02-14 12:00:00',
-    //     'title' => 'Example post',
-    //     'tags' => '["exciting","tags","yay"]',
-    //     'status' => 2
-    // ]
-
-Alright! That's already a whole lot better. And if you need to manipulate the values and send them back its just as easy to transform them the other way.
-
-    <?php
-
-    $post['title'] = 'How to be awesome';
-    $post = $transform->toExt($post);
-
-    var_dump($post);
-    // [
-    //     'id' => '5',
-    //     'UserID' => '100',
-    //     'entryDate' => '2014-02-14 12:00:00',
-    //     'Title' => 'How to be awesome',
-    //     'tags' => '["exciting","tags","yay"]',
-    //     'Status' => 2
-    // ]
-
-Lets tackle those tags next. They are stored as JSON string so we will want to `json_decode` them for our app and then `json_encode` them again for storage.
-
-    <?php
-
-    $transform->define('tags', 'tags', 'json_decode', 'json_encode');
-    // ...
-
-    $post = $transform->toApp($post);
-
-    var_dump($post);
-    // [
-    //     'id' => '5',
-    //     'user_id' => '100',
-    //     'created' => '2014-02-14 12:00:00',
-    //     'title' => 'Example post',
-    //     'tags' => ['exciting', 'tags', 'yay'],
-    //     'status' => 2
-    // ]
-
-Booya. And transforming for storage will of course convert it back to a JSON string. How did that work though? The 3rd and 4th arguments of `define()` will accept any [PHP callable](http://www.php.net/manual/en/language.types.callable.php) and use it to parse the value. This provides a lot of flexibility for using PHP functions and methods or you can quickly create your own.
-
-There are also some definition shortcuts built in for common needs. For example, instead of manually referencing the json functions above you can simply use `defineJson`.
-
-    <?php
-
-    $transform->defineJson('tags', 'tags');
-    $transform->defineDate('created', 'entryDate');
-
-That will do exactly the same thing as above, except it looks a bit prettier and saves you from having to type an additional 30 characters. You can see we also used another shortcut `defineDate`. This will take the date string and turn it into a proper DateTime object for our app and convert it back to the MySQL date format for storage.
-
-The last thing we should address is that status field. Its fairly common to store ints instead of strings for status values, but often you will want to represent that in your app as a string. You can easily define a list of key value pairs like so:
-
-    <?php
-
-    $status_mask = [
-        1 => 'draft',
-        2 => 'published'
     ];
 
-    $transform->defineBitmask('status', 'status', $status_mask);
+    $post = $transformer->toApp($post);
+    var_dump($post);
+    // [
+    //     'id' => 5,
+    //     'user_id' => 100,
+    //     'title' => 'Example post',
+    //     'time' => 5.30,
+    //     'created' => class DateTime#1 (3) {
+	//         public $date => string(19) "2014-02-14 13:05:22"
+	//         public $timezone_type => int(3)
+	//         public $timezone => string(16) "America/New_York"
+	//     },
+    //     'tags' => ['exciting', 'tags', 'yay'],
+    //     'status' => 'published',
+    // ]
+
+As you can see, all of the names have been changed to use a consistent format and most of our values now have specific types that we can use and manipulate in our app. You'll notice we used a very specific Utility class for Mysql. There is also a utility class for handling Mongo and a common interface that both of these classes implement. This allows you to define the transformation you need without needing to remember specific transformation methods for each storage type. The interface also makes it easy for you to add your own Utility class as a drop in replacement.
+
+	<?php
+
+	$post['time'] = 6.00;
+	$post['title'] = 'A Different Example';
+
+	$post = $transformer->toExt($post);
+	var_dump($post);
+	// [
+    //     'id' => '5',
+    //     'UserID' => '100',
+    //     'Title' => 'Example post',
+    //     'timeToRead' => '5.30',
+    //     'entryDate' => '2014-02-14 13:05:22',
+    //     'tags' => '["exciting","tags","yay"]',
+    //     'Status' => 2
+    // ];
+
+You can transform individual values on the fly.
+
+	<?php
+
+	$status = $transformer->toExt('published');
+	echo $status;
+	// 2
+
+And there is a third argument for handling arrays.
+
+	<?php
+
+	$statuses = [1,2];
+	$statuses = $transformer->toApp($statuses, 'status', true);
 
 
-## Putting it all together
-One you have all of the definitions you can package it up into a single reusable component.
+## Basic Definitions
+
+### define
+All other definitions are merely convience wrappers around this core method.
 
     <?php
 
-    class PostTransformer
-    {
-        public function __construct()
-        {
-            $this->define('id', 'id', 'intval');
-            $this->define('user_id', 'UserID', 'intval');
-            $this->define('title', 'Title');
-            $this->defineDate('created', 'entryDate');
-            $this->defineJson('tags', 'tags');
-            $this->defineBitmask('status', 'status', $this->status_mask);
-        }
+    /**
+     * Saves field definitions.
+     *
+     * @param string   $app_name Property name in application context.
+     * @param string   $ext_name Property name storage context.
+     * @param callable $app_func [Optional] Callable for transforming property to app context.
+     * @param callable $ext_func [Optional] Callable for transforming property to storage context.
+     * @param array    $app_args [Optional] Arguments for app callback.
+     * @param array    $ext_args [Optional] Arguments for storage callback.
+     */
+    public function define(
+        $app_name,
+        $ext_name,
+        callable $app_func = null,
+        callable $ext_func = null,
+        $app_args = [],
+        $ext_args = []
+    );
 
-        private $status_mask = [
-            1 => 'draft',
-            2 => 'published'
-        ];
+The first two arguments are required and simply define the property names for use in your application and externally. The second two arguments take callbacks that are used when converting to app and ext, respectively. The value will always be passed as the first argument and additional arguments can be passed by adding them as the last set of arguments.
+
+### defineJson
+This definition stores the data as a json string and decodes it as an array for the app. 
+
+    <?php
+
+    $transformer->define('metadata', 'metadata');
+
+This is a good example of passing additional arguments for the callback. If you were to do this manually it would look like this:
+
+    <?php
+
+    $transformer->define($app_name, $storage_name, 'json_decode', 'json_encode', [true]);
+
+Whenever you call `toExt($value)` it just calls `json_encode($value)`. However, when you call `toApp($value)` it will pass `true` as the second parameter `json_decode($value, true)` so that it will return a multidimensional array instead of an object.
+
+### defineMask
+This method allows you to create a map for transforming values. This is typically used for storing standardized values as `int`s and expanding them to strings (or better yet constants) for use in your app. This is particularly useful when those values are going to be exposed via an API and should be human readable.
+
+    <?php
+
+    $type_mask = [
+        1 => 'post',
+        2 => 'page'
+    ];
+
+    $this->defineMask('type', 'type', $type_mask);
+
+## DataStore Definitions
+These definitions require a utility method that implements `Aol\Transformers\DataStore\UtilityInterface` and can be added to your transformer class by using the `Aol\Transformers\DataStore\DefinitionsTrait`. All behaviors will differ by Utility class, but the basic purpose and some Mysql and Mongo use cases will be shown below.
+
+    <?php
+
+    class AcmeTransformer extends Transformer
+    {
+        use Aol\Transformers\DataStore\DefinitionsTrait;
     }
+
+    $utility = new \Aol\Transformers\DataStore\Utility\Mongo;
+    $transformer = new AcmeTransformer($utility);
+
+### defineId
+This definition leverages the `idToApp` and `idToExt` methods of the utility class.
+
+* Mongo - toApp transforms to string, toExt transforms to MongoId object.
+* Mysql - toApp transforms to int, toExt transforms to string.
+
+### defineDate
+This definition leverages the `dateToApp` and `dateToExt` methods of the utility class.
+
+* Mongo - toApp transforms to DateTime object, toExt converts to MongoDate object
+* Mysql - toApp transforms to DateTime object, toExt converts to `YYYY-MM-DD`
+
+### defineDateTime
+This definition leverages the `dateToApp` and `dateToExt` methods of the utility class.
+
+* Mongo - toApp transforms to DateTime object, toExt converts to MongoDate object
+* Mysql - toApp transforms to DateTime object, toExt converts to `YYYY-MM-DD HH:MM:SS`
