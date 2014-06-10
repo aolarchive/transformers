@@ -1,9 +1,9 @@
 <?php
 
-namespace Amp\Transformers\Tests;
+namespace Aol\Transformers\Tests;
 
-use Amp\Transformers\Transformer;
-use Amp\Transformers\Utility;
+use Aol\Transformers\Transformer;
+use Aol\Transformers\Utility;
 
 class TransformerTest extends \PHPUnit_Framework_TestCase
 {
@@ -91,7 +91,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 
 	public function testFqcn()
 	{
-		$this->assertSame('Amp\\Transformers\\Transformer', $this->transformer->fqcn());
+		$this->assertSame('Aol\\Transformers\\Transformer', $this->transformer->fqcn());
 	}
 
 	public function dataProvider()

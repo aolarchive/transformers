@@ -1,8 +1,8 @@
 <?php
 
-namespace Amp\Transformers\Tests\DataStore\Utility;
+namespace Aol\Transformers\Tests\DataStore\Utility;
 
-use Amp\Transformers\DataStore\Utility\Mysql;
+use Aol\Transformers\DataStore\Utility\Mysql;
 
 class MysqlTest extends \PHPUnit_Framework_TestCase
 {

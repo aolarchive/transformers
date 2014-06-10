@@ -1,8 +1,8 @@
 <?php
 
-namespace Amp\Transformers\DataStore;
+namespace Aol\Transformers\DataStore;
 
-use Amp\Transformers\Exception;
+use Aol\Transformers\Exception;
 
 trait DefinitionsTrait
 {
@@ -16,7 +16,7 @@ trait DefinitionsTrait
 	);
 
 	/**
-	 * @return \Amp\Transformers\DataStore\UtilityInterface
+	 * @return \Aol\Transformers\DataStore\UtilityInterface
 	 */
 	abstract protected function getUtility();
 
@@ -59,7 +59,7 @@ trait DefinitionsTrait
 	private function validateUtilityInterface()
 	{
 		if (!$this->getUtility() instanceof UtilityInterface) {
-			throw new Exception('This method requires the Utility class to implement Amp\\Transformers\\DataStore\\UtilityInterface');
+			throw new Exception('This method requires the Utility class to implement Aol\\Transformers\\DataStore\\UtilityInterface');
 		}
 	}
 }

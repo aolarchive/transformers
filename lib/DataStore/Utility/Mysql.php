@@ -1,9 +1,9 @@
 <?php
 
-namespace Amp\Transformers\DataStore\Utility;
+namespace Aol\Transformers\DataStore\Utility;
 
-use Amp\Transformers\DataStore\UtilityInterface;
-use Amp\Transformers\Utility;
+use Aol\Transformers\DataStore\UtilityInterface;
+use Aol\Transformers\Utility;
 
 class Mysql extends Utility implements UtilityInterface
 {

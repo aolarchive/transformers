@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\Transformers\DataStore;
+namespace Aol\Transformers\DataStore;
 
 interface UtilityInterface
 {
