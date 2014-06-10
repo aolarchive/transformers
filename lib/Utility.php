@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\Transformers;
+namespace Aol\Transformers;
 
 class Utility
 {

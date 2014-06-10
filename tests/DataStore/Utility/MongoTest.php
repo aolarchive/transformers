@@ -1,8 +1,8 @@
 <?php
 
-namespace Amp\Transformers\Tests\DataStore\Utility;
+namespace Aol\Transformers\Tests\DataStore\Utility;
 
-use Amp\Transformers\DataStore\Utility\Mongo;
+use Aol\Transformers\DataStore\Utility\Mongo;
 
 class MongoTest extends \PHPUnit_Framework_TestCase
 {

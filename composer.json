@@ -1,11 +1,17 @@
 {
-    "name": "amp/transformers",
+    "name": "aol/transformers",
+    "description": "",
+    "keywords": ["transformation", "layer", "mysql", "mongo"],
+    "homepage": "http://github.com/aol/transformers",
+    "require": {
+        "php": ">=5.4.0"
+    },
     "require-dev": {
         "phpunit/phpunit": "~4.1"
     },
     "autoload": {
         "psr-4": {
-            "Amp\\Transformers\\": "lib/"
+            "Aol\\Transformers\\": "lib/"
         }
     }
 }
