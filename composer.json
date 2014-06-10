@@ -3,6 +3,7 @@
     "description": "",
     "keywords": ["transformation", "layer", "mysql", "mongo"],
     "homepage": "http://github.com/aol/transformers",
+    "license": "MIT",
     "require": {
         "php": ">=5.4.0"
     },
