@@ -4,7 +4,7 @@ So you have a legacy database (or external service or really any type of persist
 
     <?php
 
-    $transform = new \Amp\Transformers\Transformer();
+    $transform = new \Aol\Transformers\Transformer();
 
 ## Definitions
 Data transformation is handled one row at a time. Lets start with an example blog post.
