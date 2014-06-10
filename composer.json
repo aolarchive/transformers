@@ -1,7 +1,7 @@
 {
     "name": "aol/transformers",
-    "description": "",
-    "keywords": ["transformation", "layer", "mysql", "mongo"],
+    "description": "A package for normalizing property names and types from an external data store.",
+    "keywords": ["transformation", "layer", "normalizing", "data store", "mysql", "mongo"],
     "homepage": "http://github.com/aol/transformers",
     "license": "MIT",
     "require": {
