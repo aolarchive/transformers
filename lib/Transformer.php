@@ -126,7 +126,7 @@ class Transformer
 	{
 		$this->validateEnvironment($env);
 
-		if (!is_array($data) && empty($data)) {
+		if (!is_array($data) && empty($data) && $data !== false) {
 			return null;
 		}
 

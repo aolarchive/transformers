@@ -94,6 +94,17 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame('Aol\\Transformers\\Transformer', $this->transformer->fqcn());
 	}
 
+	public function testBoolValues()
+	{
+		$utility     = new Utility();
+		$transformer = new Transformer($utility);
+		$transformer->define('public', 'public', [$utility, 'boolval'], 'intval');
+
+		$this->assertSame(['public' => 0], $transformer->toExt(['public' => false]));
+		$this->assertsame(0, $transformer->toExt(false, 'public'));
+		$this->assertsame(1, $transformer->toExt(true, 'public'));
+	}
+
 	public function dataProvider()
 	{
 		return [
