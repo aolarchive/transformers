@@ -27,6 +27,23 @@ class UtilityTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse($this->utility->boolval(0));
 	}
 
+	/**
+	 * @dataProvider iso8601Provider
+	 */
+	public function testConvertDateToIso8601($input, $format, $expected)
+	{
+		$actual = $this->utility->formatDatesInArray([$input], $format);
+		$this->assertEquals([$expected], $actual);
+	}
+
+	public function iso8601Provider()
+	{
+		return [
+			[new \DateTime('2014-01-01T00:00:00-0500'), \DateTime::ISO8601, '2014-01-01T00:00:00-0500'],
+			[new \DateTime('2014-01-01T00:00:00-0500'), 'Y-m-d', '2014-01-01']
+		];
+	}
+
 	protected function setUp()
 	{
 		$this->utility = new Utility();
