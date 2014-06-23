@@ -101,6 +101,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$transformer->define('public', 'public', [$utility, 'boolval'], 'intval');
 
 		$this->assertSame(['public' => 0], $transformer->toExt(['public' => false]));
+		$this->assertSame(['public' => 1], $transformer->toExt(['public' => true]));
 		$this->assertsame(0, $transformer->toExt(false, 'public'));
 		$this->assertsame(1, $transformer->toExt(true, 'public'));
 	}
