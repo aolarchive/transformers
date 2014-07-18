@@ -13,6 +13,6 @@ class Config extends \Aura\Di\Config
 		$di->set('Aol\\Transformers\\Transformer', $di->lazyNew('Aol\\Transformers\\Transformer'));
 		$di->set('Aol\\Transformers\\Utility', $di->lazyNew('Aol\\Transformers\\Utility'));
 
-		$di->params['Aol\\Transformers\\Transformer']['utility'] = $this->lazyGet('Aol\\Transformers\\Utility');
+		$di->params['Aol\\Transformers\\Transformer']['utility'] = $di->lazyGet('Aol\\Transformers\\Utility');
 	}
 }
