@@ -1,10 +1,10 @@
 <?php
 
-namespace Aol\Transformers;
+namespace Aol\Transformers\Config;
 
 use Aura\Di\Container;
 
-class Config extends \Aura\Di\Config
+class Common extends \Aura\Di\Config
 {
 	public function define(Container $di)
 	{

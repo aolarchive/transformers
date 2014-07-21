@@ -19,7 +19,7 @@
         "aura": {
             "type": "project",
             "config": {
-                "common": "Aol\\Transformers\\Config"
+                "common": "Aol\\Transformers\\Config\\Common"
             }
         }
     }
