@@ -17,6 +17,9 @@ class Transformer
 	/** @var array Transformation definitions */
 	private $definitions = [];
 
+	/** @var array Virtual fields */
+	private $virtual_fields = [];
+
 	/**
 	 * @param Utility $utility Utility object.
 	 */
@@ -85,6 +88,17 @@ class Transformer
 			[$mask],
 			[$mask_flip]
 		);
+	}
+
+	/**
+	 * Defines a virtual field that simply acts as a passthru and does not
+	 * appear in getKeys().
+	 *
+	 * @param string $key Virtual field key name
+	 */
+	public function defineVirtual($key)
+	{
+		$this->virtual_fields[$key] = true;
 	}
 
 	/**
@@ -157,6 +171,8 @@ class Transformer
 		foreach ($data as $key => $value) {
 			if ($def = $this->getDefinition($env, $key)) {
 				$ret[$def[self::DEFINITION_KEY]] = $this->parseDefinitionValue($def, $value);
+			} elseif (array_key_exists($key, $this->virtual_fields)) {
+				$ret[$key] = $value;
 			}
 		}
 		$ret = $this->$method_after($ret);
