@@ -106,6 +106,13 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$this->assertsame(1, $transformer->toExt(true, 'public'));
 	}
 
+	public function testVirtualDataIsPassedThru()
+	{
+		$actual = $this->transformer->toApp(['postid' => 32, 'virtual_field' => 'foo']);
+
+		$this->assertEquals(['id' => 32, 'virtual_field' => 'foo'], $actual);
+	}
+
 	public function dataProvider()
 	{
 		return [
@@ -127,6 +134,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$transformer->define('body', 'Content');
 		$transformer->defineJson('meta', 'MetaData');
 		$transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
+		$transformer->defineVirtual('virtual_field');
 
 		$this->transformer = $transformer;
 	}
