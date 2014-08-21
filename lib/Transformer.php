@@ -180,23 +180,28 @@ class Transformer
 		return $ret;
 	}
 
-	public function getKeysApp()
+	public function getKeysApp($prefix = null)
 	{
-		return $this->getKeys(self::APP);
+		return $this->getKeys(self::APP, $prefix);
 	}
 
-	public function getKeysExt()
+	public function getKeysExt($prefix = null)
 	{
-		return $this->getKeys(self::EXT);
+		return $this->getKeys(self::EXT, $prefix);
 	}
 
-	public function getKeys($env)
+	public function getKeys($env, $prefix = null)
 	{
 		$this->validateEnvironment($env);
 
-		$env = $env === self::APP ? self::EXT : self::APP;
+		$env  = $env === self::APP ? self::EXT : self::APP;
+		$keys = array_keys($this->definitions[$env]);
 
-		return array_keys($this->definitions[$env]);
+		if ($prefix !== null) {
+			$keys = array_map(function($key) use($prefix) { return $prefix . $key; }, $keys);
+		}
+
+		return $keys;
 	}
 
 	/**
