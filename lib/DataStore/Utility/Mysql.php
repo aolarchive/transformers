@@ -31,7 +31,13 @@ class Mysql extends Utility implements UtilityInterface
 	 */
 	public function dateToApp($date)
 	{
-		return empty($date) ? null : new \DateTime($date);
+		// If the value is empty, or a string containing
+		// *only* characters (' ', '-', '_', ':', '\', '/', '0'), then the DateTime is considered null.
+		if (empty($date) || (is_string($date) && preg_match('~^[ \\-_:\\\\/0]+$~', $date))) {
+			return null;
+		} else {
+			return new \DateTime($date);
+		}
 	}
 
 	/**
