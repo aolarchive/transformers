@@ -30,6 +30,11 @@ class MysqlTest extends \PHPUnit_Framework_TestCase
 		$date = '0000-00-00 00:00:00';
 		$this->assertEquals(null, $this->utility->dateToApp($date));
 	}
+	public function testZeroedDateTimeToApp()
+	{
+		$date = '0000-00-00 00:00:00';
+		$this->assertEquals(null, $this->utility->dateTimeToApp($date));
+	}
 
 	public function testDateToExt()
 	{
