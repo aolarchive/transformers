@@ -55,7 +55,7 @@ class Mysql extends Utility implements UtilityInterface
 	 */
 	public function dateTimeToApp($date)
 	{
-		return empty($date) ? null : new \DateTime($date);
+		return $this->dateToApp($date);
 	}
 
 	/**
