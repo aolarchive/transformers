@@ -4,6 +4,7 @@
 [![Latest Stable Version](https://poser.pugx.org/aol/transformers/v/stable.png)](https://packagist.org/packages/aol/transformers)
 [![Latest Unstable Version](https://poser.pugx.org/aol/transformers/v/unstable.png)](https://packagist.org/packages/aol/transformers)
 [![Total Downloads](https://poser.pugx.org/aol/transformers/downloads.png)](https://packagist.org/packages/aol/transformers)
+[![Code Climate](https://codeclimate.com/github/aol/transformers/badges/gpa.svg)](https://codeclimate.com/github/aol/transformers)
 
 So you have a legacy database (or external service or really any type of persistence layer) that uses some ridiculous naming scheme or data serialization process that is impossible to use or remember. In an ideal world you would go back to the source and fix the problem, but we live in a world of duct tape and krazy glue. This package aims to provide a flexible translation layer for normalizing property names and values between your app and an external data store.
 
