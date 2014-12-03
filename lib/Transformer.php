@@ -11,22 +11,14 @@ class Transformer
 	const DEFINITION_FUNC = 'func';
 	const DEFINITION_ARGS = 'args';
 
-	/** @var Utility Utility object. */
-	protected $utility;
-
 	/** @var array Transformation definitions */
 	private $definitions = [];
 
 	/** @var array Virtual fields */
 	private $virtual_fields = [];
 
-	/**
-	 * @param Utility $utility Utility object.
-	 */
-	public function __construct(Utility $utility)
+	public function __construct()
 	{
-		$this->utility = $utility;
-
 		$this->definitions();
 	}
 
@@ -60,35 +52,7 @@ class Transformer
 		];
 	}
 
-	/**
-	 * Defines a property that is stored as JSON. Expands to an array in app.
-	 *
-	 * @param string $app_name     Property name in application context.
-	 * @param string $storage_name Property name storage context.
-	 */
-	public function defineJson($app_name, $storage_name)
-	{
-		$this->define($app_name, $storage_name, 'json_decode', 'json_encode', [true]);
-	}
 
-	/**
-	 * @param string $app_name     Property name in application context.
-	 * @param string $storage_name Property name storage context.
-	 * @param array  $mask
-	 */
-	public function defineMask($app_name, $storage_name, $mask)
-	{
-		$mask_flip = array_flip($mask);
-
-		$this->define(
-			$app_name,
-			$storage_name,
-			[$this->utility, 'bitmask'],
-			[$this->utility, 'bitmask'],
-			[$mask],
-			[$mask_flip]
-		);
-	}
 
 	/**
 	 * Defines a virtual field that simply acts as a passthru and does not
@@ -104,7 +68,7 @@ class Transformer
 	/**
 	 * Transforms data for app.
 	 *
-	 * @param array $data Data for transformation.
+	 * @param mixed $data Data for transformation.
 	 * @param null  $key
 	 * @param bool  $array
 	 * @return array
@@ -117,7 +81,7 @@ class Transformer
 	/**
 	 * Transforms data for storage.
 	 *
-	 * @param array $data Data for transformation.
+	 * @param mixed $data Data for transformation.
 	 * @param null  $key
 	 * @param bool  $array
 	 * @return array
@@ -131,7 +95,7 @@ class Transformer
 	 * Transforms data for a specific environment.
 	 *
 	 * @param string      $env  Environment name.
-	 * @param array       $data Data for transformation.
+	 * @param mixed       $data Data for transformation.
 	 * @param null|string $key
 	 * @param bool        $array
 	 * @return array
@@ -202,24 +166,6 @@ class Transformer
 		}
 
 		return $keys;
-	}
-
-	/**
-	 * @return Utility
-	 */
-	public function getUtility()
-	{
-		return $this->utility;
-	}
-
-	/**
-	 * Returns the fully qualified class name for the called class.
-	 *
-	 * @return string
-	 */
-	public static function fqcn()
-	{
-		return get_called_class();
 	}
 
 	/**
