@@ -3,7 +3,6 @@
 namespace Aol\Transformers\Tests;
 
 use Aol\Transformers\Transformer;
-use Aol\Transformers\Utility;
 
 class TransformerTest extends \PHPUnit_Framework_TestCase
 {
@@ -47,6 +46,14 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		}
 	}
 
+	public function testDataArray()
+	{
+		$this->assertSame(
+			[21, 12],
+			$this->transformer->toApp(['21', '12'], 'postid', true)
+		);
+	}
+
 	/**
 	 * @dataProvider dataProvider
 	 */
@@ -69,49 +76,23 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 	public function testGetKeysApp()
 	{
 		$actual   = $this->transformer->getKeysApp();
-		$expected = ['id', 'title', 'body', 'meta', 'status'];
+		$expected = ['id', 'title', 'body', 'meta'];
 		$this->assertEquals($expected, $actual);
 
 		$actual   = $this->transformer->getKeysApp('test.');
-		$expected = ['test.id', 'test.title', 'test.body', 'test.meta', 'test.status',];
+		$expected = ['test.id', 'test.title', 'test.body', 'test.meta'];
 		$this->assertEquals($expected, $actual);
 	}
 
 	public function testGetKeysExt()
 	{
 		$actual   = $this->transformer->getKeysExt();
-		$expected = ['postid', 'title', 'Content', 'MetaData', 'status'];
+		$expected = ['postid', 'title', 'Content', 'MetaData'];
 		$this->assertEquals($expected, $actual);
 
 		$actual   = $this->transformer->getKeysExt('test.');
-		$expected = ['test.postid', 'test.title', 'test.Content', 'test.MetaData', 'test.status',];
+		$expected = ['test.postid', 'test.title', 'test.Content', 'test.MetaData'];
 		$this->assertEquals($expected, $actual);
-	}
-
-	public function testDataArray()
-	{
-		$app = ['published', 'draft'];
-		$ext = [2, 1];
-
-		$this->assertSame($app, $this->transformer->toApp($ext, 'status', true));
-		$this->assertSame($ext, $this->transformer->toExt($app, 'status', true));
-	}
-
-	public function testFqcn()
-	{
-		$this->assertSame('Aol\\Transformers\\Transformer', $this->transformer->fqcn());
-	}
-
-	public function testBoolValues()
-	{
-		$utility     = new Utility();
-		$transformer = new Transformer($utility);
-		$transformer->define('public', 'public', [$utility, 'boolval'], 'intval');
-
-		$this->assertSame(['public' => 0], $transformer->toExt(['public' => false]));
-		$this->assertSame(['public' => 1], $transformer->toExt(['public' => true]));
-		$this->assertsame(0, $transformer->toExt(false, 'public'));
-		$this->assertsame(1, $transformer->toExt(true, 'public'));
 	}
 
 	public function testVirtualDataIsPassedThru()
@@ -130,18 +111,16 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 
 			// Test definition shortcuts
 			[['meta' => ['foo' => 'bar']], ['MetaData' => '{"foo":"bar"}']], // Json
-			[['status' => 'draft'], ['status' => 1]], // Mask
 		];
 	}
 
 	protected function setUp()
 	{
-		$transformer = new Transformer(new Utility());
+		$transformer = new Transformer();
 		$transformer->define('id', 'postid', 'intval', 'strval');
 		$transformer->define('title', 'title');
 		$transformer->define('body', 'Content');
-		$transformer->defineJson('meta', 'MetaData');
-		$transformer->defineMask('status', 'status', [1 => 'draft', 2 => 'published']);
+		$transformer->define('meta', 'MetaData', 'json_decode', 'json_encode', [true]);
 		$transformer->defineVirtual('virtual_field');
 
 		$this->transformer = $transformer;

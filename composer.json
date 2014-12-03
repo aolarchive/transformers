@@ -14,13 +14,5 @@
         "psr-4": {
             "Aol\\Transformers\\": "lib/"
         }
-    },
-    "extra": {
-        "aura": {
-            "type": "project",
-            "config": {
-                "common": "Aol\\Transformers\\Config\\Common"
-            }
-        }
     }
 }
