@@ -38,8 +38,8 @@ class PostTransformer extends \Aol\Transformers\Transformer
     public function definitions()
     {
         
-        $this->defineId('id', 'id', 'intval');
-        $this->defineId('user_id', 'UserID', 'intval');
+        $this->defineId('id', 'id');
+        $this->defineId('user_id', 'UserID');
         
         $this->define('title', 'Title');
         $this->define('time', 'timeToRead', 'floatval');
