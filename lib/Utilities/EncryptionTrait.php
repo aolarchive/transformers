@@ -3,6 +3,7 @@
 namespace Aol\Transformers\Utilities;
 
 use Aol\Transformers\CipherInterface;
+use Aol\Transformers\Exceptions\RuntimeException;
 
 trait EncryptionTrait
 {
@@ -28,26 +29,47 @@ trait EncryptionTrait
 		$this->cipher = $cipher;
 	}
 
-	protected function encrypt($plain_text)
+	protected function encrypt($plain_string)
 	{
-		return $this->getCipher()->encrypt($plain_text);
+		return $this->getCipher()->encrypt($plain_string);
 	}
 
-	protected function decrypt($encrypted_text)
+	protected function decrypt($encrypted_string)
 	{
-		return $this->getCipher()->decrypt($encrypted_text);
+		return $this->getCipher()->decrypt($encrypted_string);
 	}
 
 	protected function defineEncrypted($app_name, $ext_name)
 	{
-		$this->define($app_name, $ext_name, [$this->getCipher(), 'decrypt'], [$this->cipher, 'encrypt']);
+		$to_app = function ($encrypted_string) {
+			return $this->decrypt($encrypted_string);
+		};
+
+		$to_ext = function ($plain_string) {
+			return $this->encrypt($plain_string);
+		};
+
+		$this->define($app_name, $ext_name, $to_app, $to_ext);
+	}
+
+	protected function defineSerializedEncrypted($app_name, $ext_name)
+	{
+		$to_app = function ($encrypted_string) {
+			return unserialize($this->decrypt($encrypted_string));
+		};
+
+		$to_ext = function ($plain_string) {
+			return $this->encrypt(serialize($plain_string));
+		};
+
+		$this->define($app_name, $ext_name, $to_app, $to_ext);
 	}
 
 	private function getCipher()
 	{
 		if (empty($this->cipher)) {
-			throw new \RuntimeException(
-				'You must supply a cipher before using encryption.'
+			throw new RuntimeException(
+				'You must supply a cipher before using encryption. '
 				. 'See ' . get_class()
 			);
 		}
