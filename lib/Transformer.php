@@ -2,6 +2,8 @@
 
 namespace Aol\Transformers;
 
+use Aol\Transformers\Exceptions\InvalidArgumentException;
+
 class Transformer
 {
 	const APP = 'app';
@@ -120,7 +122,7 @@ class Transformer
 		// Handle keys
 		if (!is_null($key)) {
 			if (!$def = $this->getDefinition($env, $key)) {
-				throw new \InvalidArgumentException('Unknown key: ' . $key);
+				throw new InvalidArgumentException('Unknown key: ' . $key);
 			}
 
 			return $this->parseDefinitionValue($def, $data);
@@ -213,7 +215,7 @@ class Transformer
 	private function validateEnvironment($env)
 	{
 		if (!in_array($env, [self::APP, self::EXT])) {
-			throw new \InvalidArgumentException('Unknown environment: ' . $env);
+			throw new InvalidArgumentException('Unknown environment: ' . $env);
 		}
 	}
 
