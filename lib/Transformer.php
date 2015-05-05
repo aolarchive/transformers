@@ -17,11 +17,6 @@ class Transformer
 	/** @var array Virtual fields */
 	private $virtual_fields = [];
 
-	public function __construct()
-	{
-		$this->definitions();
-	}
-
 	/**
 	 * Saves field definitions.
 	 *
@@ -166,14 +161,6 @@ class Transformer
 		}
 
 		return $keys;
-	}
-
-	/**
-	 * No-op. To be used in subclass to setup definitions.
-	 */
-	protected function definitions()
-	{
-
 	}
 
 	protected function beforeApp($data)
