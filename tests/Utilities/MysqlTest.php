@@ -4,7 +4,7 @@ namespace Aol\Transformers\Tests\DataStore\Utility;
 
 use Aol\Transformers\DataStore\Utility\Mysql;
 use Aol\Transformers\Transformer;
-use Aol\Transformers\Utilities\MysqlTrait;
+use Aol\Transformers\Utilities\MySqlTrait;
 
 class MysqlTest extends \PHPUnit_Framework_TestCase
 {
@@ -65,9 +65,9 @@ class MysqlTest extends \PHPUnit_Framework_TestCase
 
 class MysqlTransformer extends Transformer
 {
-	use MysqlTrait;
+	use MySqlTrait;
 
-	protected function definitions()
+	public function __construct()
 	{
 		$this->defineId('app_id', 'ext_id');
 		$this->defineDate('app_date', 'ext_date');

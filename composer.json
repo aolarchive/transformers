@@ -4,11 +4,14 @@
     "keywords": ["transformation", "layer", "normalizing", "data store", "mysql", "mongo"],
     "homepage": "http://github.com/aol/transformers",
     "license": "MIT",
+    "minimum-stability": "dev",
     "require": {
         "php": ">=5.4.0"
     },
     "require-dev": {
+        "mongofill/mongofill": "dev-master",
         "phpunit/phpunit": "~4.1"
+
     },
     "autoload": {
         "psr-4": {

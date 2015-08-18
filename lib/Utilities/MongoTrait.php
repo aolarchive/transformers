@@ -2,24 +2,13 @@
 
 namespace Aol\Transformers\Utilities;
 
+use Aol\Transformers\AbstractDefinitionTrait;
 use MongoDate;
 use MongoId;
 
 trait MongoTrait
 {
-	/**
-	 * This trait requires the define method.
-	 *
-	 * @see \Aol\Transformers\Transformer
-	 */
-	abstract public function define(
-		$app_name,
-		$ext_name,
-		callable $app_func = null,
-		callable $ext_func = null,
-		$app_args = [],
-		$ext_args = []
-	);
+	use AbstractDefinitionTrait;
 
 	/**
 	 * Defines a date property.

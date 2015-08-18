@@ -64,7 +64,7 @@ class MongoTransformer extends Transformer
 {
 	use MongoTrait;
 
-	protected function definitions()
+	public function __construct()
 	{
 		$this->defineId('app_id', 'ext_id');
 		$this->defineDate('app_date', 'ext_date');

@@ -4,6 +4,8 @@ namespace Aol\Transformers;
 
 class Transformer
 {
+	use AbstractDefinitionTrait;
+
 	const APP = 'app';
 	const EXT = 'ext';
 

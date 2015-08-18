@@ -52,7 +52,7 @@ class UtilityTransformer extends Transformer
 {
 	use UtilityTrait;
 
-	protected function definitions()
+	public function __construct()
 	{
 		$this->defineJson('app_json', 'ext_json');
 		$this->defineMask('app_mask', 'ext_mask', [1 => 'foo', 2 => 'bar']);

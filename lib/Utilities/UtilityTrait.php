@@ -2,21 +2,11 @@
 
 namespace Aol\Transformers\Utilities;
 
+use Aol\Transformers\AbstractDefinitionTrait;
+
 trait UtilityTrait
 {
-	/**
-	 * This trait requires the define method.
-	 *
-	 * @see \Aol\Transformers\Transformer
-	 */
-	abstract public function define(
-		$app_name,
-		$ext_name,
-		callable $app_func = null,
-		callable $ext_func = null,
-		$app_args = [],
-		$ext_args = []
-	);
+	use AbstractDefinitionTrait;
 
 	/**
 	 * Defines a property that is stored as JSON. Expands to an array in app.
