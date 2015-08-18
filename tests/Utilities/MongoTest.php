@@ -2,7 +2,6 @@
 
 namespace Aol\Transformers\Tests\Utilities;
 
-
 use Aol\Transformers\Transformer;
 use Aol\Transformers\Utilities\MongoTrait;
 

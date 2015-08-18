@@ -2,11 +2,10 @@
 
 namespace Aol\Transformers\Tests\DataStore\Utility;
 
-use Aol\Transformers\DataStore\Utility\Mysql;
 use Aol\Transformers\Transformer;
 use Aol\Transformers\Utilities\MySqlTrait;
 
-class MysqlTest extends \PHPUnit_Framework_TestCase
+class MySqlTest extends \PHPUnit_Framework_TestCase
 {
 	/** @var MysqlTransformer */
 	private $transformer;
