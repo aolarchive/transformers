@@ -23,6 +23,10 @@ trait MongoTrait
 		};
 
 		$ext_callable = function ($date) {
+			if (empty($date)) {
+				return null;
+			}
+
 			$date = $date instanceof \DateTime ? $date->getTimestamp() : strtotime($date);
 
 			return new MongoDate($date);

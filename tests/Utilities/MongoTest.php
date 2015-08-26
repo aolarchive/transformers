@@ -25,6 +25,8 @@ class MongoTest extends \PHPUnit_Framework_TestCase
 	public function testDateToExtNull()
 	{
 		$this->assertNull($this->transformer->toExt(null, 'app_date'));
+
+		$this->assertEquals(['ext_date' => null], $this->transformer->toExt(['app_date' => null]));
 	}
 
 	public function testDateToApp()
