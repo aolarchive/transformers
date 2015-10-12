@@ -102,6 +102,25 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(['id' => 32, 'virtual_field' => 'foo'], $actual);
 	}
 
+	public function testGetKey()
+	{
+		$this->assertEquals('postid', $this->transformer->getKeyApp('id'));
+		$this->assertEquals('body', $this->transformer->getKeyExt('Content'));
+	}
+
+	public function testGetMap()
+	{
+		$expected = [
+				'id'    => 'postid',
+				'title' => 'title',
+				'body'  => 'Content',
+				'meta'  => 'MetaData',
+		];
+
+		$this->assertEquals($expected, $this->transformer->getMap());
+		$this->assertEquals(array_flip($expected), $this->transformer->getMap(Transformer::EXT));
+	}
+
 	public function dataProvider()
 	{
 		return [
