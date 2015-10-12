@@ -10,6 +10,7 @@ class Transformer
 	const EXT = 'ext';
 
 	const DEFINITION_KEY = 'key';
+	const DEFINITION_MAP = 'map';
 	const DEFINITION_FUNC = 'func';
 	const DEFINITION_ARGS = 'args';
 
@@ -39,17 +40,17 @@ class Transformer
 	) {
 		$this->definitions[self::EXT][$app_name] = [
 			self::DEFINITION_KEY  => $ext_name,
+			self::DEFINITION_MAP  => $app_name,
 			self::DEFINITION_FUNC => $ext_func,
 			self::DEFINITION_ARGS => $ext_args
 		];
 		$this->definitions[self::APP][$ext_name] = [
 			self::DEFINITION_KEY  => $app_name,
+			self::DEFINITION_MAP  => $ext_name,
 			self::DEFINITION_FUNC => $app_func,
 			self::DEFINITION_ARGS => $app_args,
 		];
 	}
-
-
 
 	/**
 	 * Defines a virtual field that simply acts as a passthru and does not
@@ -141,16 +142,13 @@ class Transformer
 		return $ret;
 	}
 
-	public function getKeysApp($prefix = null)
-	{
-		return $this->getKeys(self::APP, $prefix);
-	}
-
-	public function getKeysExt($prefix = null)
-	{
-		return $this->getKeys(self::EXT, $prefix);
-	}
-
+	/**
+	 * Returns all of the defined keys for the given environment.
+	 *
+	 * @param string      $env    The environment from which to retrieve the keys
+	 * @param null|string $prefix Prefix will be applied to all key names
+	 * @return array
+	 */
 	public function getKeys($env, $prefix = null)
 	{
 		$this->validateEnvironment($env);
@@ -159,10 +157,80 @@ class Transformer
 		$keys = array_keys($this->definitions[$env]);
 
 		if ($prefix !== null) {
-			$keys = array_map(function($key) use($prefix) { return $prefix . $key; }, $keys);
+			$keys = array_map(function ($key) use ($prefix) {
+				return $prefix . $key;
+			}, $keys);
 		}
 
 		return $keys;
+	}
+
+	/**
+	 * Returns all of the defined keys for the APP environment.
+	 *
+	 * @param null $prefix
+	 * @return array
+	 */
+	public function getKeysApp($prefix = null)
+	{
+		return $this->getKeys(self::APP, $prefix);
+	}
+
+	/**
+	 * Returns all of the defined keys for the EXT environment.
+	 * @param null $prefix
+	 * @return array
+	 */
+	public function getKeysExt($prefix = null)
+	{
+		return $this->getKeys(self::EXT, $prefix);
+	}
+
+	/**
+	 * Look up a specific environment key by its mapped key.
+	 *
+	 * @param string $env
+	 * @param string $key
+	 * @return null|string
+	 */
+	public function getKey($env, $key)
+	{
+		$map = $this->getMap($env);
+
+		return isset($map[$key]) ? $map[$key] : null;
+	}
+
+	/**
+	 * Gets a mapped key name using the APP environment.
+	 *
+	 * @param $key
+	 * @return null|string
+	 */
+	public function getKeyApp($key)
+	{
+		return $this->getKey(self::APP, $key);
+	}
+
+	/**
+	 * Gets a mapped key name using the EXT environment.
+	 * 
+	 * @param $key
+	 * @return null|string
+	 */
+	public function getKeyExt($key)
+	{
+		return $this->getKey(self::EXT, $key);
+	}
+
+	/**
+	 * Returns a map of all defined key names for the given environment.
+	 *
+	 * @param string $keys The environment to use for array keys
+	 * @return array
+	 */
+	public function getMap($keys = self::APP)
+	{
+		return array_column($this->definitions[$keys], self::DEFINITION_MAP, self::DEFINITION_KEY);
 	}
 
 	protected function beforeApp($data)
