@@ -101,7 +101,53 @@ trait MongoTrait
 	}
 
 	/**
-	 * Convert all reserved Mongo characters in the given array's keys, to safe unicode characters.
+	 * Convert all reserved Mongo characters in a single key name, to safe unicode characters.
+	 * Converts the following characters:
+	 * '$' -> '＄'
+	 * '.' -> '．'
+	 *
+	 * @see http://docs.mongodb.org/manual/faq/developers/#faq-dollar-sign-escaping
+	 *
+	 * @param  string The key to escape
+	 * @return string The escaped key
+	 */
+	public function escapeMongoKey($key)
+	{
+		if (is_string($key)) {
+			// Convert '$' -> '＄', '.' -> '．'
+			if (strpos($key, '$') !== false || strpos($key, '.') !== false) {
+				$key = str_replace(['$', '.'], [json_decode('"\uFF04"'), json_decode('"\uFF0E"')], $key);
+			}
+		}
+		return $key;
+	}
+
+	/**
+	 * Reverts all converted safe unicode characters in a single key name, back to the original characters.
+	 * Reverts the following characters:
+	 * '＄' -> '$'
+	 * '．' -> '.'
+	 *
+	 * @see http://docs.mongodb.org/manual/faq/developers/#faq-dollar-sign-escaping
+	 *
+	 * @param  string The key to unescape
+	 * @return string The unescaped key
+	 */
+	public function unescapeMongoKey($key)
+	{
+		if (is_string($key)) {
+			// Convert '＄' -> '$', '．' -> '.'
+			if (mb_strpos($key, json_decode('"\uFF04"')) !== false
+				|| mb_strpos($key, json_decode('"\uFF0E"')) !== false) {
+
+				$key = str_replace([json_decode('"\uFF04"'), json_decode('"\uFF0E"')], ['$', '.'], $key);
+			}
+		}
+		return $key;
+	}
+
+	/**
+	 * Convert all reserved Mongo characters in all the given array's keys, to safe unicode characters.
 	 * Converts the following characters:
 	 * '$' -> '＄'
 	 * '.' -> '．'
@@ -116,12 +162,10 @@ trait MongoTrait
 		if (is_array($data)) {
 			foreach($data as $key => $value) {
 				if (is_string($key)) {
-					$new_key = null;
-
 					// Convert '$' -> '＄', '.' -> '．'
-					if (strpos($key, '$') !== false || strpos($key, '.') !== false) {
-						$new_key = str_replace(['$', '.'], [json_decode('"\uFF04"'), json_decode('"\uFF0E"')], $key);
+					$new_key = $this->escapeMongoKey($key);
 
+					if ($new_key !== $key) {
 						$data[$new_key] = $value;
 						unset($data[$key]);
 						$key = $new_key;
@@ -136,7 +180,7 @@ trait MongoTrait
 	}
 
 	/**
-	 * Reverts all converted safe unicode characters in the given array's keys, back to the original characters.
+	 * Reverts all converted safe unicode characters in all the given array's keys, back to the original characters.
 	 * Reverts the following characters:
 	 * '＄' -> '$'
 	 * '．' -> '.'
@@ -151,13 +195,10 @@ trait MongoTrait
 		if (is_array($data)) {
 			foreach($data as $key => $value) {
 				if (is_string($key)) {
-					$new_key = null;
-
 					// Convert '＄' -> '$', '．' -> '.'
-					if (mb_strpos($key, json_decode('"\uFF04"')) !== false
-						|| mb_strpos($key, json_decode('"\uFF0E"')) !== false) {
-						$new_key = str_replace([json_decode('"\uFF04"'), json_decode('"\uFF0E"')], ['$', '.'], $key);
+					$new_key = $this->unescapeMongoKey($key);
 
+					if ($new_key !== $key) {
 						$data[$new_key] = $value;
 						unset($data[$key]);
 						$key = $new_key;
