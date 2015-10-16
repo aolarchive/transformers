@@ -55,6 +55,48 @@ class MongoTest extends \PHPUnit_Framework_TestCase
 		);
 	}
 
+	public function testEscapeMongoKeys()
+	{
+		$data = [
+			'$dollar'    => '$dollar$sign',
+			'dot.symbol' => 'these.are.dots',
+			'is$dollar'  => true,
+			'foo'        => 'bar'
+		];
+		$escaped = [
+			'＄dollar'    => '$dollar$sign',
+			'dot．symbol' => 'these.are.dots',
+			'is＄dollar'  => true,
+			'foo'        => 'bar'
+		];
+
+		$this->assertEquals(
+			$escaped,
+			$this->transformer->escapeMongoKeys($data)
+		);
+	}
+
+	public function testUnescapeMongoKeys()
+	{
+		$data = [
+			'＄dollar'    => '$dollar$sign',
+			'dot．symbol' => 'these.are.dots',
+			'is＄dollar'  => true,
+			'foo'        => 'bar'
+		];
+		$unescaped = [
+			'$dollar'    => '$dollar$sign',
+			'dot.symbol' => 'these.are.dots',
+			'is$dollar'  => true,
+			'foo'        => 'bar'
+		];
+
+		$this->assertEquals(
+			$unescaped,
+			$this->transformer->unescapeMongoKeys($data)
+		);
+	}
+
 	protected function setUp()
 	{
 		$this->transformer = new MongoTransformer();
