@@ -3,14 +3,14 @@
 namespace Aol\Transformers\Utilities;
 
 use Aol\Transformers\AbstractDefinitionTrait;
-use MongoDate;
-use MongoId;
+use MongoDB\BSON\UTCDateTime;
+use MongoDB\BSON\ObjectID;
 
 /**
- * For use with the legacy pecl-mongo driver.
- * @see http://php.net/manual/en/book.mongo.php
+ * For use with the latest pecl-mongodb driver.
+ * @see http://php.net/manual/en/book.mongodb.php
  */
-trait MongoTrait
+trait MongoDBTrait
 {
 	use AbstractDefinitionTrait;
 
@@ -23,7 +23,7 @@ trait MongoTrait
 	protected function defineDate($app_name, $ext_name)
 	{
 		$app_callable = function ($date) {
-			return $date instanceof MongoDate ? new \DateTime('@' . $date->sec) : null;
+			return $date instanceof UTCDateTime ? $date->toDateTime() : null;
 		};
 
 		$ext_callable = function ($date) {
@@ -33,7 +33,7 @@ trait MongoTrait
 
 			$date = $date instanceof \DateTime ? $date->getTimestamp() : strtotime($date);
 
-			return new MongoDate($date);
+			return new UTCDateTime($date * 1000);
 		};
 
 		$this->define($app_name, $ext_name, $app_callable, $ext_callable);
@@ -48,7 +48,7 @@ trait MongoTrait
 	protected function defineId($app_name, $ext_name)
 	{
 		$ext_callable = function ($id) {
-			return empty($id) ? null : new MongoId($id);
+			return empty($id) ? null : new ObjectId($id);
 		};
 
 		$this->define($app_name, $ext_name, 'strval', $ext_callable);
@@ -59,25 +59,26 @@ trait MongoTrait
 	//---------------------------------
 
 	/**
-	 * Get created DateTime from a MongoId object.
+	 * Get created DateTime from a ObjectID object.
 	 *
-	 * @param MongoId $id
+	 * @param ObjectID $id
 	 * @return \DateTime
 	 */
-	protected function getDateFromMongoId(MongoId $id)
+	protected function getDateFromMongoId(ObjectID $id)
 	{
-		$date_time = new \DateTime('@' . $id->getTimestamp());
+		$timestamp = intval(substr((string)$id, 0, 8), 16);
+		$date_time = new \DateTime('@' . $timestamp);
 		$date_time->setTimezone(new \DateTimeZone(date_default_timezone_get()));
 		return $date_time;
 	}
 
 	/**
-	 * Build a new MongoId instance from a given date.
+	 * Build a new ObjectID instance from a given date.
 	 *
 	 * @see http://jwage.com/post/55617183676/mongodb-php-mongodate-tricks
 	 *
-	 * @param mixed $date Date to use to generate MongoId; can be unix timestamp, DateTime, or date string
-	 * @return MongoId
+	 * @param mixed $date Date to use to generate ObjectID; can be unix timestamp, DateTime, or date string
+	 * @return ObjectID
 	 */
 	protected function getMongoIdFromDate($date)
 	{
@@ -101,7 +102,7 @@ trait MongoTrait
 		for ($i = 0; $i < 12; $i++ ) {
 			$id .= sprintf('%02x', ord($bin[$i]));
 		}
-		return new \MongoId($id);
+		return new ObjectId($id);
 	}
 
 	/**
