@@ -9,7 +9,7 @@ use MongoDB\BSON\UTCDateTime;
 
 class MongoDBTest extends \PHPUnit_Framework_TestCase
 {
-	/** @var MongoTransformer */
+	/** @var MongoDBTransformer */
 	private $transformer;
 
 	public function testIdToApp()
@@ -101,11 +101,11 @@ class MongoDBTest extends \PHPUnit_Framework_TestCase
 
 	protected function setUp()
 	{
-		$this->transformer = new MongoTransformer();
+		$this->transformer = new MongoDBTransformer();
 	}
 }
 
-class MongoTransformer extends Transformer
+class MongoDBTransformer extends Transformer
 {
 	use MongoDBTrait;
 
