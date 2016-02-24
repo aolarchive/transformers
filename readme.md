@@ -33,7 +33,7 @@ $transformer->define('title', 'Title');
 $transformer->define('tags', 'post_tags', 'json_decode', 'json_encode');
 
 $post = $transformer->toApp($post);
-// ['id' => 5, 'title' => 'Awesome Post!', 'post_tags' => ['awesome']];
+// ['id' => 5, 'title' => 'Awesome Post!', 'tags' => ['awesome']];
 ```
 
 We have a "Post" array from some external source. It could be MySql, Mongo, an API, the source doesn't really matter. The important part is that we have a post with a few issues. Here's a checklist of things we want to change:
