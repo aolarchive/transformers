@@ -23,7 +23,12 @@ trait MongoDBTrait
 	protected function defineDate($app_name, $ext_name)
 	{
 		$app_callable = function ($date) {
-			return $date instanceof UTCDateTime ? $date->toDateTime() : null;
+			if ($date instanceof UTCDateTime) {
+				// NOTE: Generates new DateTime to workaround issue with unserialize
+				// of UTCDateTime::toDateTime() object
+				return new \DateTime('@' . $date->toDateTime()->getTimestamp());
+			}
+			return null;
 		};
 
 		$ext_callable = function ($date) {
