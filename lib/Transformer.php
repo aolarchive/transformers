@@ -73,7 +73,10 @@ class Transformer
 	 */
 	public function toApp($data, $key = null, $array = false)
 	{
-		return $this->to(self::APP, $data, $key, $array);
+		$data = $this->beforeApp($data);
+		$data = $this->to(self::APP, $data, $key, $array);
+		$data = $this->afterApp($data);
+		return $data;
 	}
 
 	/**
@@ -86,7 +89,10 @@ class Transformer
 	 */
 	public function toExt($data, $key = null, $array = false)
 	{
-		return $this->to(self::EXT, $data, $key, $array);
+		$data = $this->beforeExt($data);
+		$data = $this->to(self::EXT, $data, $key, $array);
+		$data = $this->afterExt($data);
+		return $data;
 	}
 
 	/**
